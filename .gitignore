@@ -1,0 +1,11 @@
+.idea
+cmake-build-*
+build-*
+
+*.aux
+*.log
+*.bbl
+*.blg
+*.out
+*.synctex.gz
+*.toc
