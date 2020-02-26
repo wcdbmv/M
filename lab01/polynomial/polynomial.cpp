@@ -17,6 +17,11 @@ Polynomial Polynomial::integrate() const {
 	return Polynomial(result_coefficients);
 }
 
+Polynomial Polynomial::integrate_from(double xi) const {
+	Polynomial integral = integrate();
+	return integral - integral(xi);
+}
+
 double Polynomial::operator()(double x) const {
 	double result = coefficients_[degree_];
 	for (size_t i = degree_; i--;) {
@@ -82,7 +87,7 @@ Polynomial operator*(const Polynomial& lhs, const Polynomial& rhs) {
 	return Polynomial(result_coefficients);
 }
 
-Polynomial operator*(const Polynomial& polynomial, double factor) noexcept {
+Polynomial operator*(const Polynomial& polynomial, double factor) {
 	Polynomial result(polynomial);
 	for (auto& coefficient: result.coefficients_) {
 		coefficient *= factor;
@@ -90,7 +95,7 @@ Polynomial operator*(const Polynomial& polynomial, double factor) noexcept {
 	return result;
 }
 
-Polynomial operator*(double factor, const Polynomial& polynomial) noexcept {
+Polynomial operator*(double factor, const Polynomial& polynomial) {
 	return polynomial * factor;
 }
 
@@ -107,4 +112,15 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& vector) {
 
 std::ostream& operator<<(std::ostream& os, const Polynomial& polynomial) {
 	return os << polynomial.coefficients_;
+}
+
+Polynomial operator^(const Polynomial& base, size_t power) {
+	if (!power) {
+		return Polynomial({1});
+	}
+	Polynomial result = base;
+	for (size_t i = 1; i < power; ++i) {
+		result = result * base;
+	}
+	return result;
 }

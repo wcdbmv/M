@@ -10,6 +10,7 @@ public:
 	explicit Polynomial(const std::vector<double>& coefficients);
 
 	[[nodiscard]] Polynomial integrate() const;
+	[[nodiscard]] Polynomial integrate_from(double xi) const;
 
 	double operator()(double x) const;
 
@@ -20,8 +21,9 @@ public:
 	friend Polynomial operator-(const Polynomial& minuend, double subtrahend);
 	friend Polynomial operator-(double minuend, const Polynomial& subtrahend);
 	friend Polynomial operator*(const Polynomial& lhs, const Polynomial& rhs);
-	friend Polynomial operator*(const Polynomial& polynomial, double factor) noexcept;
-	friend Polynomial operator*(double factor, const Polynomial& polynomial) noexcept;
+	friend Polynomial operator*(const Polynomial& polynomial, double factor);
+	friend Polynomial operator*(double factor, const Polynomial& polynomial);
+	friend Polynomial operator^(const Polynomial& base, size_t power);
 
 	friend std::ostream& operator<<(std::ostream& os, const Polynomial& polynomial);
 

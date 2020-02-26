@@ -3,6 +3,8 @@ project(lab01)
 
 set(CMAKE_CXX_STANDARD 17)
 
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
 add_compile_options(
 	-Werror
 
@@ -26,10 +28,16 @@ add_compile_options(
 
 set(
 	HEADERS
-	polynomial/polynomial.hpp)
+	cauchy/cauchy.hpp
+	polynomial/polynomial.hpp
+	range/range.hpp
+)
 
 set(
 	SOURCES
-	polynomial/polynomial.cpp)
+	cauchy/cauchy.cpp
+	polynomial/polynomial.cpp
+	range/range.cpp
+)
 
 add_executable(lab01 main.cpp ${HEADERS} ${SOURCES})
