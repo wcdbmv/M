@@ -1,0 +1,60 @@
+\documentclass[a4paper,14pt]{extreport}
+
+\include{preamble}
+
+\begin{document}
+
+\include{title}
+
+Рассмотрим задачу с начальным условием для дифференциального уравнения (задачу Коши):
+\begin{equation}
+	\left\{
+	\begin{aligned}
+		u'(x) &= f(x, u), \\
+		u(\xi) &= \eta
+	\end{aligned}
+	\right.
+\end{equation}
+
+Решение можно найти приближённым аналитическим методом Пикара:
+\begin{equation}
+	\begin{aligned}
+		y^{(0)}(x) &= \eta \\
+		y^{(n+1)}(x) &= \eta + \int\limits_{\xi}^x f(t, y^{(n)}(t))\,\mathrm dt \\
+	\end{aligned}
+\end{equation}
+
+На примере $u'(x) = x^2 + y^2$ при $u(0) = 0$:
+\begin{equation}
+	\begin{aligned}
+		y^{(0)}(0) &= 0, \\
+		y^{(1)}(x) &= 0 + \int_0^x t^2\,\mathrm dt = \frac{x^3}{3}, \\
+		y^{(2)}(x) &= 0 + \int_0^x \bigg[t^2 + \bigg(\frac{t^3}{3}\bigg)^2\bigg] \,\mathrm dt = \frac{x^3}{3} + \frac{x^7}{63}, \\
+		y^{(3)}(x) &= 0 + \int_0^x \bigg[t^2 + \bigg(\frac{t^3}{3} + \frac{t^7}{63}\bigg)^2\bigg] \,\mathrm dt = \frac{x^3}{3} + \frac{x^7}{63} + \frac{2x^{11}}{2079} + \frac{x^{15}}{59535}, \\
+		\dots
+	\end{aligned}
+\end{equation}
+
+Кроме того, эту задачу можно решить численными методами.
+Следующая формула для явного способа:
+\begin{equation}
+	y_{n+1} = y_n + h \cdot f(x_n, y_n)
+\end{equation}
+
+Похожим образом выглядит неявный метод:
+\begin{equation}
+	y_{n+1} = y_n + h \cdot f(x_{n+1}, y_{n+1})
+\end{equation}
+
+Стоит заметить, что для всех рассмотренных методов результат будет тем лучше, чем ближе значение $x$ к $\xi$.
+
+Реализованная программа производит расчет для $f(x, y) = x^2 + y^2$.
+Исходя из этого, можно упростить нахождения решения в неявном виде: получаем квадратное уравнение и в качестве решения берем меньший корень.
+
+\lstinputlisting[language=C++, linerange={9-30}, caption={Реализация аналитического метода Пикара}]{../cauchy/cauchy.cpp}
+
+\lstinputlisting[language=C++, linerange={32-45}, caption={Реализация явного численного метода}]{../cauchy/cauchy.cpp}
+
+\lstinputlisting[language=C++, linerange={47-76}, caption={Реализация неявного численного метода}]{../cauchy/cauchy.cpp}
+
+\end{document}
