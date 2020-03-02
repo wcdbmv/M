@@ -44,7 +44,7 @@ void Range::calc_nodes() {
 		node = cur;
 		cur += delta_;
 	}
-	nodes_.back() = right_;
+	// nodes_.back() = right_;
 }
 
 
