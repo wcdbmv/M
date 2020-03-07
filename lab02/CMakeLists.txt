@@ -34,4 +34,4 @@ set(
 	HEADERS
 )
 
-add_executable(lab02 main.cpp ${SOURCES} ${HEADERS})
+add_executable(lab02 _main.cpp ${SOURCES} ${HEADERS})
