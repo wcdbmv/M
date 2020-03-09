@@ -1,8 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <array>
 #include <QMainWindow>
-#include "parameters.hpp"
+#include "qcustomplot/qcustomplot.h"
+#include "solve.hpp"
 
 namespace Ui {
 class MainWindow;
@@ -23,6 +25,7 @@ private:
 
 private:
 	Ui::MainWindow *ui;
+	std::array<QCustomPlot*, 4> customPlots;
 
 	Parameters parameters;
 };
