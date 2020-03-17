@@ -1,8 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-
-
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow)
@@ -36,13 +34,16 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::getValues() {
-	parameters.R   = ui->R_doubleSpinBox->value();
-	parameters.Le  = ui->Le_doubleSpinBox->value();
-	parameters.Lk  = ui->Lk_doubleSpinBox->value() * 1e-6;
-	parameters.Ck  = ui->Ck_doubleSpinBox->value() * 1e-6;
-	parameters.Rk  = ui->Rk_doubleSpinBox->value();
-	parameters.Uc0 = ui->Uc0_doubleSpinBox->value();
-	parameters.I0  = ui->I0_doubleSpinBox->value();
+	parameters.R        = ui->R_doubleSpinBox->value();
+	parameters.Le       = ui->Le_doubleSpinBox->value();
+	parameters.Lk       = ui->Lk_doubleSpinBox->value() * 1e-6;
+	parameters.Ck       = ui->Ck_doubleSpinBox->value() * 1e-6;
+	parameters.Rk       = ui->Rk_doubleSpinBox->value();
+	parameters.Uc0      = ui->Uc0_doubleSpinBox->value();
+	parameters.I0       = ui->I0_doubleSpinBox->value();
+	parameters.t_max    = ui->t_max_doubleSpinBox->value() * 1e-6;
+	parameters.dt       = ui->dt_doubleSpinBox->value() * 1e-6;
+	parameters.disableR = ui->disableRCheckBox->isChecked();
 }
 
 void MainWindow::on_calculatePushButton_clicked() {

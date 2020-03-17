@@ -11,6 +11,9 @@ struct Parameters {
 	double Rk;
 	double Uc0;
 	double I0;
+	double t_max;
+	double dt;
+	bool disableR;
 };
 
 using Container = QVector<double>;

@@ -36,7 +36,7 @@
       <x>10</x>
       <y>270</y>
       <width>231</width>
-      <height>221</height>
+      <height>321</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -50,90 +50,22 @@
       <rect>
        <x>10</x>
        <y>0</y>
-       <width>215</width>
-       <height>220</height>
+       <width>219</width>
+       <height>284</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="6" column="0">
-       <widget class="QLabel" name="I0_label">
+      <item row="7" column="2">
+       <widget class="QLabel" name="t_max_units_label">
         <property name="text">
-         <string>I&lt;sub&gt;0&lt;/sub&gt;</string>
+         <string>мкс</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
-       <widget class="QLabel" name="Le_units_label">
+      <item row="6" column="2">
+       <widget class="QLabel" name="I0_units_label">
         <property name="text">
-         <string>см</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="Le_label">
-        <property name="text">
-         <string>L&lt;sub&gt;э&lt;/sub&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QLabel" name="Ck_units_label">
-        <property name="text">
-         <string>10&lt;sup&gt;-6&lt;/sup&gt; Ф</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QDoubleSpinBox" name="Le_doubleSpinBox">
-        <property name="maximum">
-         <double>1000000000.000000000000000</double>
-        </property>
-        <property name="value">
-         <double>12.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QDoubleSpinBox" name="R_doubleSpinBox">
-        <property name="maximum">
-         <double>1000000000.000000000000000</double>
-        </property>
-        <property name="value">
-         <double>0.350000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="R_units_label">
-        <property name="text">
-         <string>см</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QDoubleSpinBox" name="Ck_doubleSpinBox">
-        <property name="maximum">
-         <double>1000000000.000000000000000</double>
-        </property>
-        <property name="value">
-         <double>268.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QDoubleSpinBox" name="Rk_doubleSpinBox">
-        <property name="maximum">
-         <double>1000000000.000000000000000</double>
-        </property>
-        <property name="value">
-         <double>0.250000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="Ck_label">
-        <property name="text">
-         <string>C&lt;sub&gt;k&lt;/sub&gt;</string>
+         <string>А</string>
         </property>
        </widget>
       </item>
@@ -141,34 +73,6 @@
        <widget class="QLabel" name="Lk_label">
         <property name="text">
          <string>L&lt;sub&gt;k&lt;/sub&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="Lk_units_label">
-        <property name="text">
-         <string>10&lt;sup&gt;-6&lt;/sup&gt; Гн</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="2">
-       <widget class="QLabel" name="Rk_units_label">
-        <property name="text">
-         <string>Ом</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="Rk_label">
-        <property name="text">
-         <string>R&lt;sub&gt;k&lt;/sub&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="R_label">
-        <property name="text">
-         <string>R</string>
         </property>
        </widget>
       </item>
@@ -182,34 +86,51 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
-       <widget class="QDoubleSpinBox" name="Uc0_doubleSpinBox">
+      <item row="4" column="0">
+       <widget class="QLabel" name="Rk_label">
+        <property name="text">
+         <string>R&lt;sub&gt;k&lt;/sub&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="I0_label">
+        <property name="text">
+         <string>I&lt;sub&gt;0&lt;/sub&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="Le_label">
+        <property name="text">
+         <string>L&lt;sub&gt;э&lt;/sub&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QLabel" name="Rk_units_label">
+        <property name="text">
+         <string>Ом</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QDoubleSpinBox" name="R_doubleSpinBox">
         <property name="maximum">
          <double>1000000000.000000000000000</double>
         </property>
         <property name="value">
-         <double>1400.000000000000000</double>
+         <double>0.350000000000000</double>
         </property>
        </widget>
       </item>
-      <item row="6" column="2">
-       <widget class="QLabel" name="I0_units_label">
-        <property name="text">
-         <string>А</string>
+      <item row="1" column="1">
+       <widget class="QDoubleSpinBox" name="Le_doubleSpinBox">
+        <property name="maximum">
+         <double>1000000000.000000000000000</double>
         </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="Uc0_label">
-        <property name="text">
-         <string>U&lt;sub&gt;c0&lt;/sub&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="2">
-       <widget class="QLabel" name="Uc0_units_label">
-        <property name="text">
-         <string>В</string>
+        <property name="value">
+         <double>12.000000000000000</double>
         </property>
        </widget>
       </item>
@@ -223,14 +144,154 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="R_units_label">
+        <property name="text">
+         <string>см</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QDoubleSpinBox" name="Uc0_doubleSpinBox">
+        <property name="maximum">
+         <double>1000000000.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>1400.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="Le_units_label">
+        <property name="text">
+         <string>см</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QDoubleSpinBox" name="t_max_doubleSpinBox">
+        <property name="maximum">
+         <double>1000000000.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>800.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="Lk_units_label">
+        <property name="text">
+         <string>10&lt;sup&gt;-6&lt;/sup&gt; Гн</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QLabel" name="Uc0_units_label">
+        <property name="text">
+         <string>В</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QLabel" name="Ck_units_label">
+        <property name="text">
+         <string>10&lt;sup&gt;-6&lt;/sup&gt; Ф</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QDoubleSpinBox" name="Ck_doubleSpinBox">
+        <property name="maximum">
+         <double>1000000000.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>268.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="Ck_label">
+        <property name="text">
+         <string>C&lt;sub&gt;k&lt;/sub&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="Uc0_label">
+        <property name="text">
+         <string>U&lt;sub&gt;c0&lt;/sub&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="t_max_label">
+        <property name="text">
+         <string>t&lt;sub&gt;max&lt;/sub&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QDoubleSpinBox" name="Rk_doubleSpinBox">
+        <property name="maximum">
+         <double>1000000000.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.250000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="R_label">
+        <property name="text">
+         <string>R</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QDoubleSpinBox" name="dt_doubleSpinBox">
+        <property name="maximum">
+         <double>1000000000.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>1.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0">
+       <widget class="QLabel" name="dt_label">
+        <property name="text">
+         <string>dt</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="2">
+       <widget class="QLabel" name="dt_units_label">
+        <property name="text">
+         <string>мкс</string>
+        </property>
+       </widget>
+      </item>
      </layout>
+    </widget>
+    <widget class="QCheckBox" name="disableRCheckBox">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>290</y>
+       <width>201</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Rk + Rp = 0</string>
+     </property>
     </widget>
    </widget>
    <widget class="QPushButton" name="calculatePushButton">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>500</y>
+      <y>600</y>
       <width>231</width>
       <height>25</height>
      </rect>

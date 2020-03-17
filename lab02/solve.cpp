@@ -1,20 +1,29 @@
 #include "solve.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cmath>
-#include <array>
+#include <functional>
 
 class Solver {
 public:
 	explicit Solver(const Parameters& parameters) :
-		R_  (parameters.R),
-		Le_ (parameters.Le),
-		Lk_ (parameters.Lk),
-		Ck_ (parameters.Ck),
-		Rk_ (parameters.Rk),
-		Uc0_(parameters.Uc0),
-		I0_ (parameters.I0) {}
+			R_    (parameters.R),
+			Le_   (parameters.Le),
+			Lk_   (parameters.Lk),
+			Ck_   (parameters.Ck),
+			Rk_   (parameters.disableR ? 0 : parameters.Rk),
+			Uc0_  (parameters.Uc0),
+			I0_   (parameters.I0),
+			t_max_(parameters.t_max),
+			dt_   (parameters.dt) {
+		if (parameters.disableR) {
+			Rp = [&](double I) { return Rp_disable(I); };
+		} else {
+			Rp = [&](double I) { return Rp_enable(I);  };
+		}
+	}
 
 	Dependency solve() const {
 		Dependency dependency = {
@@ -25,11 +34,8 @@ public:
 			{Ucp(I0_, Rp(I0_))},
 		};
 
-		constexpr double dt = 1e-6;
-		constexpr double max_t = 800e-6;
-
-		for (double t = dt; t < max_t; t += dt) {
-			auto [Inp1, Ucnp1] = find_next_IUc(dt, dependency.I.back(), dependency.Uc.back());
+		for (double t = dt_; t < t_max_; t += dt_) {
+			auto [Inp1, Ucnp1] = find_next_IUc(dependency.I.back(), dependency.Uc.back(), dt_);
 			dependency.t.push_back(t);
 			dependency.I.push_back(Inp1);
 			dependency.Uc.push_back(Ucnp1);
@@ -48,7 +54,11 @@ private:
 	const double Rk_;
 	const double Uc0_;
 	const double I0_;
+	const double t_max_;
+	const double dt_;
 	static constexpr double Tw_ = 2000;
+
+	std::function<double (double)> Rp;
 
 	/*
 	 * Tables
@@ -85,19 +95,19 @@ private:
 		return ys[i] + (ys[i + 1] - ys[i]) * (x - xs[i]) / (xs[i + 1] - xs[i]);
 	}
 
-	static double T0(double i) {
-		return linear_interpolation(i, I_TABLE_, T0_TABLE_);
+	static double T0(double I) {
+		return linear_interpolation(I, I_TABLE_, T0_TABLE_);
 	}
 
-	static double m(double i) {
-		return linear_interpolation(i, I_TABLE_, m_TABLE_);
+	static double m(double I) {
+		return linear_interpolation(I, I_TABLE_, m_TABLE_);
 	}
 
 	double sigma(double t) const {
 		return std::exp(linear_interpolation(std::log(t), log_T_table_, log_sigma_table_));
 	}
 
-	static double T(double z, double T0, double Tw, double m) {
+	static double T(double T0, double Tw, double z, double m) {
 		return T0 + (Tw - T0) * std::pow(z, m);
 	}
 
@@ -115,43 +125,55 @@ private:
 		return s;
 	}
 
-	double Rp(double i) const {
-		const auto integral = trapezoidal([&](double z) { return z * sigma(T(z, T0(i), Tw_, m(i))); }, 0, 1, 512);
+	double Rp_enable(double I) const {
+		const auto integral = trapezoidal([&](double z) { return z * sigma(T(T0(I), Tw_, z, m(I))); }, 0, 1, 128);
 		return Le_ / (2 * M_PI * R_ * R_ * integral);
+	}
+
+	double Rp_disable(double) const {
+		return 0;
 	}
 
 	static double Ucp(double I, double _Rp) {
 		return I * _Rp;
 	}
 
-	double f(double I, double Uc) const {
-		I = std::abs(I);
-		return (Uc - (Rk_ + Rp(I)) * I) / Lk_;
+	double dI(double I, double Uc) const {
+		return (Uc - (Rk_ + Rp(std::abs(I))) * I) / Lk_;
 	}
 
-	double g(double I) const {
-		return -std::abs(I) / Ck_;
+	double dUc(double I) const {
+		return -I / Ck_;
 	}
 
-	std::pair<double, double> find_next_IUc(double dt, double In, double Ucn) const {
-		In = std::abs(In);
+	static std::pair<double, double> Runge_Kutta(
+			const std::function<double (double, double, double)>& f,
+			const std::function<double (double, double, double)>& g,
+			double xn, double yn, double zn,
+			double hn) {
+		const double k1 = hn * f(xn, yn, zn);
+		const double q1 = hn * g(xn, yn, zn);
 
-		const double k1 = f(In, Ucn);
-		const double m1 = g(In);
+		const double k2 = hn * f(xn + hn / 2, yn + k1 / 2, zn + q1 / 2);
+		const double q2 = hn * g(xn + hn / 2, yn + k1 / 2, zn + q1 / 2);
 
-		const double k2 = f(In + dt * k1 / 2.0, Ucn + dt * m1 / 2.0);
-		const double m2 = g(In + dt * k1 / 2.0);
+		const double k3 = hn * f(xn + hn / 2, yn + k2 / 2, zn + q2 / 2);
+		const double q3 = hn * g(xn + hn / 2, yn + k2 / 2, zn + q2 / 2);
 
-		const double k3 = f(In + dt * k2 / 2.0, Ucn + dt * m2 / 2.0);
-		const double m3 = g(In + dt * k2 / 2.0);
+		const double k4 = hn * f(xn + hn, yn + k3, zn + q3);
+		const double q4 = hn * g(xn + hn, yn + k3, zn + q3);
 
-		const double k4 = f(In + dt * k3 / 2.0, Ucn + dt * m3 / 2.0);
-		const double m4 = g(In + dt * k3 / 2.0);
+		const double ynp1 = yn + (k1 + 2 * k2 + 2 * k3 + k4) / 6;
+		const double znp1 = zn + (q1 + 2 * q2 + 2 * q3 + q4) / 6;
 
-		const double Inp1 = In + dt * (k1 + 2*k2 + 2*k3 + k4) / 6.0;
-		const double Ucnp1 = Ucn + dt * (m1 + 2*m2 + 2*m3 + m4) / 6.0;
+		return {ynp1, znp1};
+	}
 
-		return {std::abs(Inp1), Ucnp1};
+	std::pair<double, double> find_next_IUc(double In, double Ucn, double dt) const {
+		const auto f = [&](double, double I, double Uc) { return dI(I, Uc); };
+		const auto g = [&](double, double I, double   ) { return dUc(I);    };
+
+		return Runge_Kutta(f, g, 0, In, Ucn, dt);
 	}
 };
 
