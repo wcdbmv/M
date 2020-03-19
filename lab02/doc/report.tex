@@ -1,0 +1,59 @@
+\documentclass[a4paper,oneside,12pt]{extreport}
+
+\include{preamble}
+
+\begin{document}
+
+\include{title}
+
+Дан колебательный контур с газоразрядной трубкой
+
+\includegraphics{inc/img/scheme}
+
+Получена система дифференциальных уравнений:
+\begin{equation*}
+	\left\{
+	\begin{aligned}
+		L_k & \frac{\mathrm dI}{\mathrm dt} + (R_k + R_p) I - U_c = 0, \\
+		C_k & \frac{\mathrm dU_c}{\mathrm dt} = -I.
+	\end{aligned}
+	\right.
+\end{equation*}
+
+Даны таблицы зависимостей $T_0$ и $m$ от $I$, $\sigma$ от $T$.
+
+Требуется построить графики зависимостей $I(t)$, $R_p(t)$, $U_c(t)$, $U_p(t)$.
+
+Сопротивление газоразрядной трубки находится в зависимости от силы тока:
+\begin{equation*}
+	R_p(I) = \frac{l_\text{э}}{2 \pi R^2 \int_0^1 \sigma(T(z))z\,\mathrm dz}.
+\end{equation*}
+
+Система уравнений решается методом Рунге-Кутта 4-го порядка:
+\begin{equation*}
+	\begin{aligned}
+		y_{n+1} &= y_n + \frac{k_1 + 2k_2 + 2k_3 + k_4}{6},\\
+		z_{n+1} &= z_n + \frac{q_1 + 2q_2 + 2q_3 + q_4}{6},
+	\end{aligned}
+\end{equation*}
+где
+\begin{equation*}
+	\begin{aligned}
+		&k_1  = h_n f(x_n, y_n, z_n),
+		&q_1 &= h_n g(x_n, y_n, z_n), \\
+		&k_2  = h_n f(x_n + \frac{h_n}{2}, y_n + \frac{k_1}{2}, z_n + \frac{q_1}{2}),
+		&q_2 &= h_n g(x_n + \frac{h_n}{2}, y_n + \frac{k_1}{2}, z_n + \frac{q_1}{2}), \\
+		&k_3  = h_n f(x_n + \frac{h_n}{2}, y_n + \frac{k_2}{2}, z_n + \frac{q_2}{2}),
+		&q_3 &= h_n g(x_n + \frac{h_n}{2}, y_n + \frac{k_2}{2}, z_n + \frac{q_2}{2}), \\
+		&k_4  = h_n f(x_n + h_n, y_n + k_3, z_n + q_3),
+		&q_4 &= h_n g(x_n + h_n, y_n + k_3, z_n + q_3). \\
+	\end{aligned}
+\end{equation*}
+
+\lstinputlisting[caption={Интерполяция}, style=cpp, linerange={91-112}]{../solve.cpp}
+
+\lstinputlisting[caption={Интегрирование}, style=cpp, linerange={114-131}]{../solve.cpp}
+
+\lstinputlisting[caption={Решение системы ОДУ}, style=cpp, linerange={137-177}]{../solve.cpp}
+
+\end{document}

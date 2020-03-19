@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background: url(:/resource/img/scheme.png)</string>
+     <string notr="true">background: url(:/resource/doc/inc/img/scheme.png)</string>
     </property>
     <property name="text">
      <string/>
