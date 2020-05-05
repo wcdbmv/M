@@ -1,18 +1,17 @@
 cmake_minimum_required(VERSION 3.15)
-project(lab02)
+project(lab02 LANGUAGES CXX)
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
-
-set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Gui REQUIRED)
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5PrintSupport REQUIRED)
-find_package(Threads REQUIRED)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt5 COMPONENTS PrintSupport REQUIRED)
 
 add_compile_options(
 	-Werror
@@ -35,17 +34,19 @@ add_compile_options(
 	-Wsign-promo
 )
 
+include_directories(../qcustomplot)
+
 set(
 	SOURCES
+	../qcustomplot/qcustomplot.cpp
 	mainwindow.cpp
-	qcustomplot/qcustomplot.cpp
 	solve.cpp
 )
 
 set(
 	HEADERS
+	../qcustomplot/qcustomplot.h
 	mainwindow.h
-	qcustomplot/qcustomplot.h
 	solve.hpp
 )
 
@@ -56,8 +57,5 @@ set(
 
 add_executable(lab02 main.cpp ${SOURCES} ${HEADERS} ${RESOURCES})
 
-target_link_libraries(${PROJECT_NAME} Qt5::Core)
-target_link_libraries(${PROJECT_NAME} Qt5::Gui)
 target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
 target_link_libraries(${PROJECT_NAME} Qt5::PrintSupport)
-target_link_libraries(${PROJECT_NAME} Threads::Threads)

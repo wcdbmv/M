@@ -3,7 +3,7 @@
 
 #include <array>
 #include <QMainWindow>
-#include "qcustomplot/qcustomplot.h"
+#include "qcustomplot.h"
 #include "solve.hpp"
 
 namespace Ui {
