@@ -10,7 +10,7 @@ public:
 			F0_    (parameters.F0),
 			b_     (l_ * kN_ / (kN_ - k0_)),
 			a_     (-k0_ / b_),
-			d_     (l_ * alphaN_ / alphaN_ - alpha0_),
+			d_     (l_ * alphaN_ / (alphaN_ - alpha0_)),
 			c_     (-alpha0_ * d_) {}
 
 	Dependency solve() const {
@@ -33,21 +33,21 @@ public:
 		const double pN = -(alphaN_ * T0_ + h_ * ((f(l_) + f(l_ - h_)) / 2 + f(l_)) / 4);
 
 		// forward sweep
+		Container xi(a.size() + 1);
 		Container eta(a.size() + 1);
-		Container theta(a.size() + 1);
-		eta[1]   = -m0 / k0;
-		theta[1] =  p0 / k0;
+		xi[1]  = -m0 / k0;
+		eta[1] =  p0 / k0;
 		for (int i = 1; i < a.size(); ++i) {
-			const double det = b[i] - a[i] * eta[i];
-			eta[i + 1]   = c[i] / det;
-			theta[i + 1] = (d[i] + a[i] * theta[i]) / det;
+			const double det = b[i] - a[i] * xi[i];
+			xi[i + 1]  = c[i] / det;
+			eta[i + 1] = (a[i] * eta[i] + d[i]) / det;
 		}
 
 		// backward substitution
 		Container ys(a.size());
-		ys.back() = (pN - mN * theta.back()) / (kN + mN * eta.back());
+		ys.back() = (pN - mN * eta.back()) / (kN + mN * xi.back());
 		for (int i = ys.size() - 2; i >= 0; --i) {
-			ys[i] = eta[i + 1] * ys[i + 1] + theta[i + 1];
+			ys[i] = xi[i + 1] * ys[i + 1] + eta[i + 1];
 		}
 
 		return {xs, ys};

@@ -30,6 +30,6 @@ void MainWindow::on_calculatePushButton_clicked() {
 	const auto dependency = solve(parameters);
 
 	ui->customPlot->graph(0)->setData(dependency.x, dependency.T);
-	ui->customPlot->graph(0)->rescaleAxes();
+	ui->customPlot->graph(0)->rescaleAxes(1);
 	ui->customPlot->replot();
 }

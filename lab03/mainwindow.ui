@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1137</width>
-    <height>737</height>
+    <width>1388</width>
+    <height>754</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <rect>
       <x>250</x>
       <y>20</y>
-      <width>871</width>
+      <width>1121</width>
       <height>701</height>
      </rect>
     </property>
@@ -37,7 +37,7 @@
      <string>Рассчитать</string>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
