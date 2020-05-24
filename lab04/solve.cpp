@@ -2,47 +2,6 @@
 #include <algorithm>
 #include <cmath>
 
-struct sweep_arrays {
-	QVector<double> an;
-	QVector<double> bn;
-	QVector<double> cn;
-	QVector<double> dn;
-};
-
-struct border_conditions {
-	double k;
-	double m;
-	double p;
-};
-
-QVector<double> sweep_method(const sweep_arrays &params,
-		     const border_conditions &left,
-		     const border_conditions &right) {
-	QVector<double> etta(params.an.size() + 1);
-	QVector<double> tetta(params.an.size() + 1);
-	QVector<double> y(params.an.size());
-
-	etta[1] = - left.m / left.k;
-	tetta[1] = left.p / left.k;
-
-	// direct stroke of the method
-	for (auto i = 1; i < params.an.size(); i++) {
-		auto determinator = params.bn[i] + params.an[i] * etta[i];
-		etta[i + 1] = -params.cn[i] / determinator;
-		tetta[i + 1] = (params.dn[i] - params.an[i] * tetta[i]) / determinator;
-	}
-
-	// reverse stroke
-	y[y.size() - 1] = (right.p - right.k * tetta[tetta.size() - 1])
-			/ (right.m + right.k * etta[etta.size() - 1]);
-
-	for (int i = y.size() - 2; i >= 0; i--) {
-		y[i] = etta[i + 1] * y[i + 1] + tetta[i + 1];
-	}
-
-	return y;
-}
-
 class Solver_ {
 public:
 	Solver_(double F0) : F0_(F0) {}
@@ -66,11 +25,50 @@ public:
 			std::copy(prev_T.begin(), prev_T.end(), previous.begin());
 
 			while (true) {
-				left_border_cond(curr_T, prev_T);
-				right_border_cond(curr_T, prev_T);
-				sweep_params(curr_T, prev_T);
+				const auto [K0, M0, P0] = left_border_cond(curr_T, prev_T);
+				const auto [KN, MN, PN] = right_border_cond(curr_T, prev_T);
 
-				curr_T = sweep_method(arrays_, left_, right_);
+				QVector<double> a(1);
+				QVector<double> b(1);
+				QVector<double> c(1);
+				QVector<double> d(1);
+
+				auto i = 1;
+				for (auto x = 0.; x <= l_; x += h_, i++) {
+					auto next_i = i + 1 == curr_T.size() ? i : i + 1;
+					auto x_min_half = (k(curr_T[i]) + k(curr_T[i - 1])) / 2;
+					auto x_plus_half = (k(curr_T[i]) + k(curr_T[next_i])) / 2;
+
+					a.push_back(x_min_half * tau_ / h_);
+					c.push_back(x_plus_half * tau_ / h_);
+					b.push_back(-a[a.size() - 1] - c[c.size() -1]
+							- this->c(curr_T[i]) * h_ - p(x) * h_ * tau_);
+					d.push_back(-f(x) * h_ * tau_ - this->c(curr_T[i]) * prev_T[i] * h_);
+				}
+
+				QVector<double> etta(a.size() + 1);
+				QVector<double> tetta(a.size() + 1);
+				QVector<double> y(a.size());
+
+				etta[1] = - M0 / K0;
+				tetta[1] = P0 / K0;
+
+				// direct stroke of the method
+				for (auto i = 1; i < a.size(); i++) {
+					auto determinator = b[i] + a[i] * etta[i];
+					etta[i + 1] = -c[i] / determinator;
+					tetta[i + 1] = (d[i] - a[i] * tetta[i]) / determinator;
+				}
+
+				// reverse stroke
+				y[y.size() - 1] = (PN - KN * tetta[tetta.size() - 1])
+						/ (MN + KN * etta[etta.size() - 1]);
+
+				for (int i = y.size() - 2; i >= 0; i--) {
+					y[i] = etta[i + 1] * y[i + 1] + tetta[i + 1];
+				}
+
+				curr_T = std::move(y);
 
 				auto max = 0.;
 				for (auto i = 0; i < curr_T.size(); i++) {
@@ -124,11 +122,6 @@ private:
 	static constexpr double h_ = 1e-2;
 	static constexpr double eps_ = 1e-5;
 
-	border_conditions left_;
-	border_conditions right_;
-
-	sweep_arrays arrays_;
-
 	double k(double t) const {
 		return a1_ * (b1_ + c1_ * std::pow(t, m1_));
 	}
@@ -163,32 +156,7 @@ private:
 		return 2. * k_curr * k_prev / (k_curr + k_prev);
 	}
 
-	void sweep_params(QVector<double> curr_T, QVector<double> prev_T) {
-		QVector<double> a(1);
-		QVector<double> b(1);
-		QVector<double> c(1);
-		QVector<double> d(1);
-
-		auto i = 1;
-		for (auto x = 0.; x <= l_; x += h_, i++) {
-			auto next_i = i + 1 == curr_T.size() ? i : i + 1;
-			auto x_min_half = (k(curr_T[i]) + k(curr_T[i - 1])) / 2;
-			auto x_plus_half = (k(curr_T[i]) + k(curr_T[next_i])) / 2;
-
-			a.push_back(x_min_half * tau_ / h_);
-			c.push_back(x_plus_half * tau_ / h_);
-			b.push_back(-a[a.size() - 1] - c[c.size() -1]
-					- this->c(curr_T[i]) * h_ - p(x) * h_ * tau_);
-			d.push_back(-f(x) * h_ * tau_ - this->c(curr_T[i]) * prev_T[i] * h_);
-		}
-
-		arrays_.an = a;
-		arrays_.bn = b;
-		arrays_.cn = c;
-		arrays_.dn = d;
-	}
-
-	void left_border_cond(QVector<double> curr_T, QVector<double> prev_T) {
+	std::tuple<double, double, double> left_border_cond(const QVector<double>& curr_T, const QVector<double>& prev_T) {
 		auto c_in_half = c((curr_T[0] + curr_T[1]) / 2);
 		auto c_0 = c(curr_T[0]);
 
@@ -206,12 +174,10 @@ private:
 		auto p0 = h_ * c_in_half / 8 * (prev_T[0] + prev_T[1])
 				+ h_ * c_0 / 4 * prev_T[0] + F0_ * tau_ + tau_ * h_ / 4 * (f_in_half + f_0);
 
-		left_.k = k0;
-		left_.m = m0;
-		left_.p = p0;
+		return {k0, m0, p0};
 	}
 
-	void right_border_cond(QVector<double> curr_T, QVector<double> prev_T) {
+	std::tuple<double, double, double> right_border_cond(const QVector<double>& curr_T, const QVector<double> &prev_T) {
 		auto N = curr_T.size() - 1;
 
 		auto c_N_min_half = c((curr_T[N] + curr_T[N - 1]) / 2);
@@ -232,9 +198,7 @@ private:
 		auto pN = h_ * c_N * prev_T[N] / 4 + h_ * c_N_min_half * (prev_T[N] + prev_T[N - 1]) / 8
 				+ alphaN_ * T0_ * tau_ + (f_N + f_N_min_half) * tau_ * h_ / 4;
 
-		right_.k = kN;
-		right_.m = mN;
-		right_.p = pN;
+		return {kN, mN, pN};
 	}
 };
 
@@ -343,10 +307,6 @@ private:
 	static constexpr double const_a_ = -(kN_ * k0_ * l_) / (kN_ - k0_);
 	static constexpr double const_b_ = (kN_ * l_) / (kN_ - k0_);
 
-	static constexpr double k_x(double x) {
-		return  const_a_ / (x - const_b_);
-	}
-
 	static double k(double T) {
 		return a1_ * (b1_ + c1_ * std::pow(T, m1_));
 	}
@@ -368,14 +328,6 @@ private:
 
 	static constexpr double f(double x) {
 		return 2 * alpha(x) * T0_ / R_;
-	}
-
-	static double x_nph(double x) {
-		return (k_x(x) + k_x(x + h_)) / 2;
-	}
-
-	static double x_nmh(double x) {
-		return (k_x(x) + k_x(x - h_)) / 2;
 	}
 
 	static double x_nph(double T_n, double T_np1) {
