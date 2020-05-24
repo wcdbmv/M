@@ -16,7 +16,6 @@ public:
 	QVector<QVector<double>> Tt;
 };
 
-//Dependency solve(const Parameters& parameters);
-std::pair<QVector<double>, QVector<std::pair<double, QVector<double>>>> solve(const Parameters& parameters);
+Dependency solve(const Parameters& parameters);
 
 #endif  // SOLVE_HPP_
