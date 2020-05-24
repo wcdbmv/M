@@ -25,8 +25,8 @@ public:
 			std::copy(prev_T.begin(), prev_T.end(), previous.begin());
 
 			while (true) {
-				const auto [K0, M0, P0] = left_border_cond(curr_T, prev_T);
-				const auto [KN, MN, PN] = right_border_cond(curr_T, prev_T);
+				const auto [K0, M0, P0] = left_border(curr_T, prev_T);
+				const auto [KN, MN, PN] = right_border(curr_T, prev_T);
 
 				QVector<double> a(1);
 				QVector<double> b(1);
@@ -101,9 +101,9 @@ public:
 private:
 	const double F0_;
 
-	static constexpr double l_ = 10.;
-	static constexpr double R_ = 0.5;
-	static constexpr double T0_ = 300;
+	static constexpr double l_   = 10;
+	static constexpr double T0_  = 300;
+	static constexpr double R_   = 0.5;
 	static constexpr double tau_ = 2;
 
 	static constexpr double a1_ = 0.0134;
@@ -122,83 +122,71 @@ private:
 	static constexpr double h_ = 1e-2;
 	static constexpr double eps_ = 1e-5;
 
-	double k(double t) const {
-		return a1_ * (b1_ + c1_ * std::pow(t, m1_));
+	static double k(double T) {
+		return a1_ * (b1_ + c1_ * std::pow(T, m1_));
 	}
 
-	double c(double t) const {
-		return a2_ + b2_ * std::pow(t, m2_) - c2_ / (t * t);
+	static double c(double T) {
+		return a2_ + b2_ * std::pow(T, m2_) - c2_ / (T * T);
 	}
 
-	double alpha(double x) const {
-		auto c = -(alphaN_ * alpha0_ * this->l_) / (alphaN_ - alpha0_);
-		auto d = (alphaN_ * this->l_) / (alphaN_ - alpha0_);
-		return c / (x - d);
+	static constexpr double alpha(double x) {
+		constexpr double delta_alpha = alphaN_ - alpha0_;
+		auto __c = -(alphaN_ * alpha0_ * l_) / delta_alpha;
+		auto __d = (alphaN_ * l_) / delta_alpha;
+		return __c / (x - __d);
 	}
 
-	double p(double x_n) const {
-		return 2 * alpha(x_n) / R_;
+	static constexpr double p(double x) {
+		return 2 * alpha(x) / R_;
 	}
 
-	double f(double x_n) const {
-		return  2 * alpha(x_n) * T0_ / R_;
+	static constexpr double f(double x) {
+		return  2 * alpha(x) * T0_ / R_;
 	}
 
-	double x_nph(double x_n) const {
-		auto k_curr = k(x_n);
-		auto k_next = k(x_n + h_);
-		return 2. * k_curr * k_next / (k_curr + k_next);
+	static double x_nph(double T_n, double T_np1) {
+		return (k(T_n) + k(T_np1)) / 2;
 	}
 
-	double x_nmh(double x_n) const {
-		auto k_curr = k(x_n);
-		auto k_prev = k(x_n - h_);
-		return 2. * k_curr * k_prev / (k_curr + k_prev);
+	static double x_nmh(double T_n, double T_nm1) {
+		return (k(T_n) + k(T_nm1)) / 2;
 	}
 
-	std::tuple<double, double, double> left_border_cond(const QVector<double>& curr_T, const QVector<double>& prev_T) {
-		auto c_in_half = c((curr_T[0] + curr_T[1]) / 2);
-		auto c_0 = c(curr_T[0]);
+	std::tuple<double, double, double> left_border(const QVector<double> &T_curr, const QVector<double> &T_prev) {
+		constexpr double p_0 = p(0);
+		constexpr double p_h = (p_0 + p(h_)) / 2;
+		constexpr double f_0 = f(0);
+		constexpr double f_h = (f_0 + f(h_)) / 2;
 
-		auto hi_in_half = (k(curr_T[0]) + k(curr_T[1])) / 2;
+		const double c_0   = c(T_curr[0]);
+		const double c_h   = c((T_curr[0] + T_curr[1]) / 2);
+		const double chi_h = (k(T_curr[0]) + k(T_curr[1])) / 2;
 
-		auto p_0 = p(0.);
-		auto p_in_half = (p_0 + p(h_)) / 2;
+		const double K0 = h_ * c_h / 8 + h_ * c_0 / 4 + tau_ * chi_h / h_ + tau_ * h_ * p_h / 8 + tau_ * h_ * p_0 / 4;
+		const double M0 = h_ * c_h / 8 - tau_ * chi_h / h_ + tau_ * h_ * p_h / 8;
+		const double P0 = h_ * c_h / 8 * (T_prev[0] + T_prev[1]) + h_ * c_0 / 4 * T_prev[0] + F0_ * tau_ + tau_ * h_ / 4 * (f_h + f_0);
 
-		auto f_0 = f(0.);
-		auto f_in_half = (f_0 + f(h_)) / 2;
-
-		auto k0 = h_ * c_in_half / 8 + h_ * c_0 / 4 + tau_ * hi_in_half / h_
-			  + tau_ * h_ * p_in_half / 8 + tau_ * h_ * p_0 / 4;
-		auto m0 = h_ * c_in_half / 8 - tau_ * hi_in_half / h_ + tau_ * h_ * p_in_half / 8;
-		auto p0 = h_ * c_in_half / 8 * (prev_T[0] + prev_T[1])
-				+ h_ * c_0 / 4 * prev_T[0] + F0_ * tau_ + tau_ * h_ / 4 * (f_in_half + f_0);
-
-		return {k0, m0, p0};
+		return {K0, M0, P0};
 	}
 
-	std::tuple<double, double, double> right_border_cond(const QVector<double>& curr_T, const QVector<double> &prev_T) {
-		auto N = curr_T.size() - 1;
+	std::tuple<double, double, double> right_border(const QVector<double> &T_curr, const QVector<double> &T_prev) {
+		constexpr double p_N   = p(l_);
+		constexpr double p_Nmh = (p_N + p(l_ - h_)) / 2;
+		constexpr double f_N   = f(l_);
+		constexpr double f_Nmh = (f_N + f(l_ - h_)) / 2;
 
-		auto c_N_min_half = c((curr_T[N] + curr_T[N - 1]) / 2);
-		auto c_N = c(curr_T[N]);
+		const int N = T_curr.size() - 1;
 
-		auto hi_N_min_half = (k(curr_T[N]) + k(curr_T[N - 1])) / 2;
+		const double c_N     = c(T_curr[N]);
+		const double c_Nmh   = c((T_curr[N] + T_curr[N - 1]) / 2);
+		const double chi_Nmh = (k(T_curr[N]) + k(T_curr[N - 1])) / 2;
 
-		auto p_N = p(l_);
-		auto p_N_min_half = (p_N + p(l_ - h_)) / 2;
+		const double KN = h_ * c_N / 4 + h_ * c_Nmh / 8 + chi_Nmh * tau_ / h_ + alphaN_ * tau_ + p_N * tau_ * h_ / 4 + p_Nmh * tau_ * h_ / 8;
+		const double MN = h_ * c_Nmh / 8 - chi_Nmh * tau_ / h_ + p_Nmh * tau_ * h_ / 8;
+		const double PN = h_ * c_N * T_prev[N] / 4 + h_ * c_Nmh * (T_prev[N] + T_prev[N - 1]) / 8 + alphaN_ * T0_ * tau_ + (f_N + f_Nmh) * tau_ * h_ / 4;
 
-		auto f_N = f(l_);
-		auto f_N_min_half = (f_N + f(l_ - h_)) / 2;
-
-		auto kN = h_ * c_N / 4 + h_ * c_N_min_half / 8 + hi_N_min_half * tau_ / h_
-			  + alphaN_ * tau_ + p_N * tau_ * h_ / 4 + p_N_min_half * tau_ * h_ / 8;
-		auto mN = h_ * c_N_min_half / 8 - hi_N_min_half * tau_ / h_
-			  + p_N_min_half * tau_ * h_ / 8;
-		auto pN = h_ * c_N * prev_T[N] / 4 + h_ * c_N_min_half * (prev_T[N] + prev_T[N - 1]) / 8
-				+ alphaN_ * T0_ * tau_ + (f_N + f_N_min_half) * tau_ * h_ / 4;
-
-		return {kN, mN, pN};
+		return {KN, MN, PN};
 	}
 };
 
@@ -300,12 +288,6 @@ private:
 
 	static constexpr double h_ = 1e-2;
 	static constexpr double eps_ = 1e-5;
-
-	static constexpr double k0_ = 0.4;
-	static constexpr double kN_ = 0.1;
-
-	static constexpr double const_a_ = -(kN_ * k0_ * l_) / (kN_ - k0_);
-	static constexpr double const_b_ = (kN_ * l_) / (kN_ - k0_);
 
 	static double k(double T) {
 		return a1_ * (b1_ + c1_ * std::pow(T, m1_));
