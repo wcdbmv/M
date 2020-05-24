@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1388</width>
-    <height>754</height>
+    <width>1055</width>
+    <height>757</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -90,10 +90,14 @@
      </widget>
     </item>
     <item>
-     <widget class="QCustomPlot" name="Tx_customPlot" native="true"/>
-    </item>
-    <item>
-     <widget class="QCustomPlot" name="Tt_customPlot" native="true"/>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCustomPlot" name="Tx_customPlot" native="true"/>
+      </item>
+      <item>
+       <widget class="QCustomPlot" name="Tt_customPlot" native="true"/>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>

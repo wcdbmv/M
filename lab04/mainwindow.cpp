@@ -57,7 +57,7 @@ void MainWindow::on_calculatePushButton_clicked() {
 	for (int i = 0; i < result.Tt.size(); ++i) {
 		ui->Tt_customPlot->addGraph();
 		ui->Tt_customPlot->graph()->setPen(getPen(i));
-		ui->Tt_customPlot->graph()->setName(QString("len = ") + QString::number(i));
+		ui->Tt_customPlot->graph()->setName(QString("len = ") + QString::number(i * 0.1));
 		ui->Tt_customPlot->graph()->setData(result.t, result.Tt[i]);
 	}
 

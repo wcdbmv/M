@@ -147,24 +147,18 @@
 	Таким образом, уравнение \eqref{eqn:6} — разностный аналог краевого условия при $x=l$.
 
 
-	\item \textbf{График зависимости $T(x, t_m)$ при заданных выше параметрах}
+	\item \textbf{График зависимости $T(x, t_m)$ от координаты $x$ при нескольких фиксированных значениях времени $t_m$ при заданных выше параметрах}
 
-	\includegraphics[width=\linewidth]{inc/img/graph1}
+	\includegraphics[width=\linewidth]{inc/img/graph1-1}
 
-
-	\item \textbf{График зависимости $T(x_n, t)$ при $F_0=-10$ Вт/см$^2$}
-
-	\includegraphics[width=\linewidth]{inc/img/graph2}
+	На рисунке представлены графики зависимости температуры от координаты при фиксированных $t$ = 0, 6, 12, …
 
 
-	\item \textbf{График зависимости $T(x)$ при увеличенных в 3 раза значениях $\alpha(x)$}
+	\item \textbf{График зависимости $T(x_n, t)$ при нескольких фиксированных значениях координаты $x_n$}
 
-	\includegraphics[width=\linewidth]{inc/img/graph3}
+	\includegraphics[width=\linewidth]{inc/img/graph1-2}
 
-	\pagebreak
-	\item \textbf{График зависимости $T(x)$ при $F_0=0$}
-
-	\includegraphics[width=\linewidth]{inc/img/graph4}
+	На рисунке представлены графики зависимости температуры от времени при фиксированных $x$ = 0, 0.1, 0.2, …, 10.
 \end{enumerate}
 
 \section*{Вопросы}
@@ -180,9 +174,25 @@
 		\item Задать отрицательный тепловой поток.
 		Стержень будет охлаждаться с левого торца, а значит $T(x)$ от $0$ до $l$ будет увеличиваться.
 
+		\includegraphics[width=\linewidth]{inc/img/graph3}
+
 		\item При большей теплоотдачи стержня его температура должна снизиться.
 
 		\item При нулевом тепловом потоке температура стержня должна быть неизменной и равняться температуре окружающей среды.
+
+		\includegraphics[width=\linewidth]{inc/img/graph2-1}
+
+		\item Свойства материала стержня привязаны к температуре, теплоемкость и коэффициент теплопроводности  зависят от $T$, поменяем зависимости: установим зависимости $T$ от $х$, а $с = 0$.
+		Тогда температурное поле $T(x,t)$ должно совпасть с температурным распределением $T(x)$ из лабораторной 3.
+
+		\includegraphics[width=\linewidth]{inc/img/graph4-1}
+
+		\includegraphics[width=\linewidth]{inc/img/graph4-2}
+
+		На первом рисунке представлен график из 4 работы с изменёнными параметрами, а на втором — из 3.
+		Видно, что графики совпадают, пиковые температуры на левых торцах одинаковые, на правых — равны температуре окружающей среды.
+		Может показаться, что графики различаются, но это не так.
+		Визуальные различия связаны с разным масштабом координатной плоскости.
 	\end{itemize}
 
 
@@ -212,15 +222,92 @@
 		\widehat F_n=\widehat F_n(\widehat y_n),
 	\end{equation*}
 	выполним линеаризацию по Ньютону
+	\begin{multline*}
+		\left(\widehat A_n\widehat y_{n-1} - \widehat B_n\widehat y_n + \widehat D_n\widehat y_{n+1} + \widehat F_n\right)\bigg|_{(s-1)}
+		+\widehat A_n^{(s-1)}\Delta\widehat y_{n-1}^{(s)}
+		+\\+\left(\frac{\partial\widehat A_n}{\partial\widehat y_n}\widehat y_{n-1}-\frac{\partial\widehat B_n}{\partial\widehat y_n}\widehat y_n-\widehat B_n+\frac{\partial\widehat D_n}{\partial\widehat y_n}\widehat y_{n+1}+\frac{\partial\widehat F_n}{\partial\widehat y_n}\right)\bigg|_{(s-1)}
+		\cdot\Delta\widehat y_n^{(s)}+\widehat D_n^{(s-1)}\Delta\widehat y_{n+1}^{(s)}
+		=0.
+	\end{multline*}
+
+	Тогда
 	\begin{equation*}
-		\widehat A_n\widehat y_{n-1} - \widehat B_n\widehat y_n + \widehat D_n\widehat y_{n+1} + \widehat F_n = 0,\\
+		A_n\Delta\widehat y_{n-1}^{(s)} - B_n\Delta\widehat y_{n}^{(s)} + D_n\Delta\widehat y_{n+1}^{(s)} = -F_n
 	\end{equation*}
+
+	\begin{equation*}
+		\left\{
+		\begin{aligned}
+			&A_n=\widehat A_n^{(s-1)},\\
+			&B_n=\left(-\frac{\partial\widehat A_n}{\partial\widehat y_n}\widehat y_{n-1} + \frac{\partial\widehat B_n}{\partial\widehat y_n}\widehat y_n + \widehat B_n-\frac{\partial\widehat D_n}{\partial\widehat y_n}\widehat y_{n+1} + \frac{\partial\widehat F_n}{\partial\widehat y_n}\right)\bigg|_{(s-1)},\\
+			&D_n=\widehat D_n^{(s-1)},\\
+			&F_n=\left(\widehat A_n\widehat y_{n-1}-\widehat B_n\widehat y_n + \widehat D_n\widehat y_{n+1}+\widehat F_n\right)\bigg|_{(s-1)}.
+		\end{aligned}
+		\right.
+	\end{equation*}
+
+	Краевые условия
+
+	\begin{equation*}
+		\left\{
+		\begin{aligned}
+			&\left(\widehat K_0\widehat y_0+\widehat M_0\widehat y_1 - \widehat P_0\right)\bigg|_{(s-1)} + \widehat K_0^{(s-1)}\Delta\widehat y_{0}^{(s)}+\widehat M_0^{(s-1)}\Delta\widehat y_{1}^{(s)}=0,\\
+			&\left(\widehat K_N\widehat y_N+\widehat M_N\widehat y_{N-1}- \widehat P_N\right)\bigg|_{(s-1)}+\widehat K_N^{(s-1)}\Delta\widehat y_{N}^{(s)}+\widehat M_N^{(s-1)}\Delta\widehat y_{N-1}^{(s)}=0.
+		\end{aligned}
+		\right.
+	\end{equation*}
+
+	Тогда
+	\begin{equation*}
+		\left\{
+		\begin{aligned}
+			&K_0\Delta\widehat y_{0}^{(s)}+M_0\Delta\widehat y_{1}^{(s)}=P_0,\\
+			&K_N\Delta\widehat y_{N}^{(s)}+M_N\Delta\widehat y_{N-1}^{(s)}=P_N,\\
+		\end{aligned}
+		\right.
+	\end{equation*}
+
+	\begin{equation*}
+		\left\{
+		\begin{aligned}
+			&K_0=\widehat K_0^{(s-1)},\\
+			&M_0=\widehat M_0^{(s-1)},\\
+			&P_0=-\left(\widehat K_0 \widehat y_0+ \widehat M_0 \widehat y_1- \widehat P_0\right)\bigg|_{(s-1)},\\
+			&K_N=\widehat K_N^{(s-1)},\\
+			&M_N=\widehat M_N^{(s-1)},\\
+			&P_N=-\left(\widehat K_N \widehat y_N+ \widehat M_N \widehat y_{N-1}-\widehat P_N\right)\bigg|_{(s-1)}.\\
+		\end{aligned}
+		\right.
+	\end{equation*}
+
+	Получаем систему
+	\begin{equation}
+		\left\{
+		\begin{aligned}
+			&A_n\Delta\widehat y_{n-1}^{(s)}-B_n\Delta\widehat y_{n}^{(s)}+D_n\Delta\widehat y_{n+1}^{(s)}=-F_n,\\
+			&K_0\Delta\widehat y_{0}^{(s)}+M_0\Delta\widehat y_{1}^{(s)}=P_0,\\
+			&K_N\Delta\widehat y_{N}^{(s)}+M_N\Delta\widehat y_{N-1}^{(s)}=P_N.\\
+		\end{aligned}
+		\right.
+	\end{equation}
+
+	Решается методом прогонки, в результате находятся все $\Delta \widehat y_n^s$, после чего определяются значения искомой функции в узлах $ \widehat y_n^s= \widehat y_n^{(s-1)}+\Delta \widehat y_n^s $.
+	Итерационный процесс заканчивается при выполнении условия $\displaystyle \max\bigg|\frac{\Delta \widehat y_n^s}{\widehat y_n^s}\bigg|\leqslant\varepsilon$.
 \end{enumerate}
 
+\pagebreak
 \section*{Листинг}
 
 \lstinputlisting[caption={\code{solve.hpp}}, language=C++]{../solve.hpp}
 
 \lstinputlisting[caption={\code{solve.cpp}}, language=C++]{../solve.cpp}
+
+\lstinputlisting[caption={\code{mainwindow.hpp}}, language=C++]{../mainwindow.hpp}
+
+\lstinputlisting[caption={\code{mainwindow.cpp}}, language=C++]{../mainwindow.cpp}
+
+\lstinputlisting[caption={\code{main.cpp}}, language=C++]{../main.cpp}
+
+\lstinputlisting[caption={\code{CMakeLists.txt}}]{../CMakeLists.txt}
 
 \end{document}

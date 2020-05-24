@@ -64,9 +64,9 @@ public:
 			qCopy(T_curr.begin(), T_curr.end(), T_prev.begin());
 		}
 
-		const auto step = static_cast<int>(1.0 / (result.x[1] - result.x[0]));
+		const auto step = static_cast<int>(0.1 / (result.x[1] - result.x[0]));
 
-		for (int i = 0; i <= 10; ++i) {
+		for (int i = 0; i <= 100; ++i) {
 			result.Tt.push_back({});
 			for (auto &Tx: result.Tx) {
 				result.Tt.back().push_back(Tx[i * step]);
