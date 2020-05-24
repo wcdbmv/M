@@ -45,9 +45,60 @@ QVector<double> sweep_method(const sweep_arrays &params,
 
 class Solver_ {
 public:
-	Solver_(double F0);
+	Solver_(double F0) : F0_(F0) {}
 
-	std::pair<QVector<double>, QVector<std::pair<double, QVector<double>>>> count_T();
+	std::pair<QVector<double>, QVector<std::pair<double, QVector<double>>>> count_T() {
+		QVector<std::pair<double, QVector<double>>> results;
+		QVector<double> x;
+
+		QVector<double> prev_T;
+		for (auto i = 0.; i <= l_ + h_; i += h_) {
+			prev_T.push_back(300.);
+			x.push_back(i);
+		}
+		results.push_back({0, prev_T});
+
+		QVector<double> curr_T(prev_T.size());
+		std::copy(prev_T.begin(), prev_T.end(), curr_T.begin());
+
+		for (auto time = 0.; time <= 700; time += tau_) {
+			QVector<double> previous(prev_T.size());
+			std::copy(prev_T.begin(), prev_T.end(), previous.begin());
+
+			while (true) {
+				left_border_cond(curr_T, prev_T);
+				right_border_cond(curr_T, prev_T);
+				sweep_params(curr_T, prev_T);
+
+				curr_T = sweep_method(arrays_, left_, right_);
+
+				auto max = 0.;
+				for (auto i = 0; i < curr_T.size(); i++) {
+					auto diff = std::abs(curr_T[i] - previous[i]) / curr_T[i];
+					max = std::max(max, diff);
+				}
+
+				if (max < eps_) {
+					results.push_back({time, curr_T});
+					break;
+				}
+				std::copy(curr_T.begin(), curr_T.end(), previous.begin());
+			}
+
+			auto max = 0.;
+			for (auto i = 0; i < curr_T.size(); i++) {
+				auto diff = std::abs(curr_T[i] - prev_T[i]) / curr_T[i];
+				max = std::max(max, diff);
+			}
+
+			if (max < eps_) {
+				break;
+			}
+			std::copy(curr_T.begin(), curr_T.end(), prev_T.begin());
+		}
+
+		return {x, results};
+	}
 
 private:
 	const double F0_;
@@ -78,182 +129,114 @@ private:
 
 	sweep_arrays arrays_;
 
-	double k(double T) const;
-	double c(double T) const;
-	double alpha(double x) const;
-	double p(double x_n) const;
-	double f(double x_n) const;
+	double k(double t) const {
+		return a1_ * (b1_ + c1_ * std::pow(t, m1_));
+	}
 
-	double x_nph(double x_n) const;
-	double x_nmh(double x_n) const;
+	double c(double t) const {
+		return a2_ + b2_ * std::pow(t, m2_) - c2_ / (t * t);
+	}
 
-	void sweep_params(QVector<double> curr_T, QVector<double> prev_T);
-	void left_border_cond(QVector<double> curr_T, QVector<double> prev_T);
-	void right_border_cond(QVector<double> curr_T, QVector<double> prev_T);
+	double alpha(double x) const {
+		auto c = -(alphaN_ * alpha0_ * this->l_) / (alphaN_ - alpha0_);
+		auto d = (alphaN_ * this->l_) / (alphaN_ - alpha0_);
+		return c / (x - d);
+	}
+
+	double p(double x_n) const {
+		return 2 * alpha(x_n) / R_;
+	}
+
+	double f(double x_n) const {
+		return  2 * alpha(x_n) * T0_ / R_;
+	}
+
+	double x_nph(double x_n) const {
+		auto k_curr = k(x_n);
+		auto k_next = k(x_n + h_);
+		return 2. * k_curr * k_next / (k_curr + k_next);
+	}
+
+	double x_nmh(double x_n) const {
+		auto k_curr = k(x_n);
+		auto k_prev = k(x_n - h_);
+		return 2. * k_curr * k_prev / (k_curr + k_prev);
+	}
+
+	void sweep_params(QVector<double> curr_T, QVector<double> prev_T) {
+		QVector<double> a(1);
+		QVector<double> b(1);
+		QVector<double> c(1);
+		QVector<double> d(1);
+
+		auto i = 1;
+		for (auto x = 0.; x <= l_; x += h_, i++) {
+			auto next_i = i + 1 == curr_T.size() ? i : i + 1;
+			auto x_min_half = (k(curr_T[i]) + k(curr_T[i - 1])) / 2;
+			auto x_plus_half = (k(curr_T[i]) + k(curr_T[next_i])) / 2;
+
+			a.push_back(x_min_half * tau_ / h_);
+			c.push_back(x_plus_half * tau_ / h_);
+			b.push_back(-a[a.size() - 1] - c[c.size() -1]
+					- this->c(curr_T[i]) * h_ - p(x) * h_ * tau_);
+			d.push_back(-f(x) * h_ * tau_ - this->c(curr_T[i]) * prev_T[i] * h_);
+		}
+
+		arrays_.an = a;
+		arrays_.bn = b;
+		arrays_.cn = c;
+		arrays_.dn = d;
+	}
+
+	void left_border_cond(QVector<double> curr_T, QVector<double> prev_T) {
+		auto c_in_half = c((curr_T[0] + curr_T[1]) / 2);
+		auto c_0 = c(curr_T[0]);
+
+		auto hi_in_half = (k(curr_T[0]) + k(curr_T[1])) / 2;
+
+		auto p_0 = p(0.);
+		auto p_in_half = (p_0 + p(h_)) / 2;
+
+		auto f_0 = f(0.);
+		auto f_in_half = (f_0 + f(h_)) / 2;
+
+		auto k0 = h_ * c_in_half / 8 + h_ * c_0 / 4 + tau_ * hi_in_half / h_
+			  + tau_ * h_ * p_in_half / 8 + tau_ * h_ * p_0 / 4;
+		auto m0 = h_ * c_in_half / 8 - tau_ * hi_in_half / h_ + tau_ * h_ * p_in_half / 8;
+		auto p0 = h_ * c_in_half / 8 * (prev_T[0] + prev_T[1])
+				+ h_ * c_0 / 4 * prev_T[0] + F0_ * tau_ + tau_ * h_ / 4 * (f_in_half + f_0);
+
+		left_.k = k0;
+		left_.m = m0;
+		left_.p = p0;
+	}
+
+	void right_border_cond(QVector<double> curr_T, QVector<double> prev_T) {
+		auto N = curr_T.size() - 1;
+
+		auto c_N_min_half = c((curr_T[N] + curr_T[N - 1]) / 2);
+		auto c_N = c(curr_T[N]);
+
+		auto hi_N_min_half = (k(curr_T[N]) + k(curr_T[N - 1])) / 2;
+
+		auto p_N = p(l_);
+		auto p_N_min_half = (p_N + p(l_ - h_)) / 2;
+
+		auto f_N = f(l_);
+		auto f_N_min_half = (f_N + f(l_ - h_)) / 2;
+
+		auto kN = h_ * c_N / 4 + h_ * c_N_min_half / 8 + hi_N_min_half * tau_ / h_
+			  + alphaN_ * tau_ + p_N * tau_ * h_ / 4 + p_N_min_half * tau_ * h_ / 8;
+		auto mN = h_ * c_N_min_half / 8 - hi_N_min_half * tau_ / h_
+			  + p_N_min_half * tau_ * h_ / 8;
+		auto pN = h_ * c_N * prev_T[N] / 4 + h_ * c_N_min_half * (prev_T[N] + prev_T[N - 1]) / 8
+				+ alphaN_ * T0_ * tau_ + (f_N + f_N_min_half) * tau_ * h_ / 4;
+
+		right_.k = kN;
+		right_.m = mN;
+		right_.p = pN;
+	}
 };
-
-Solver_::Solver_(double F0): F0_(F0) {}
-
-std::pair<QVector<double>, QVector<std::pair<double, QVector<double>>>> Solver_::count_T() {
-	QVector<std::pair<double, QVector<double>>> results;
-	QVector<double> x;
-
-	QVector<double> prev_T;
-	for (auto i = 0.; i <= l_ + h_; i += h_) {
-		prev_T.push_back(300.);
-		x.push_back(i);
-	}
-	results.push_back({0, prev_T});
-
-	QVector<double> curr_T(prev_T.size());
-	std::copy(prev_T.begin(), prev_T.end(), curr_T.begin());
-
-	for (auto time = 0.; time <= 700; time += tau_) {
-		QVector<double> previous(prev_T.size());
-		std::copy(prev_T.begin(), prev_T.end(), previous.begin());
-
-		while (true) {
-			left_border_cond(curr_T, prev_T);
-			right_border_cond(curr_T, prev_T);
-			sweep_params(curr_T, prev_T);
-
-			curr_T = sweep_method(arrays_, left_, right_);
-
-			auto max = 0.;
-			for (auto i = 0; i < curr_T.size(); i++) {
-				auto diff = std::abs(curr_T[i] - previous[i]) / curr_T[i];
-				max = std::max(max, diff);
-			}
-
-			if (max < eps_) {
-				results.push_back({time, curr_T});
-				break;
-			}
-			std::copy(curr_T.begin(), curr_T.end(), previous.begin());
-		}
-
-		auto max = 0.;
-		for (auto i = 0; i < curr_T.size(); i++) {
-			auto diff = std::abs(curr_T[i] - prev_T[i]) / curr_T[i];
-			max = std::max(max, diff);
-		}
-
-		if (max < eps_) {
-			break;
-		}
-		std::copy(curr_T.begin(), curr_T.end(), prev_T.begin());
-	}
-
-	return {x, results};
-}
-
-double Solver_::k(double t) const {
-	return a1_ * (b1_ + c1_ * std::pow(t, m1_));
-}
-
-double Solver_::c(double t) const {
-	return a2_ + b2_ * std::pow(t, m2_) - c2_ / (t * t);
-}
-
-double Solver_::alpha(double x) const {
-	auto c = -(alphaN_ * alpha0_ * this->l_) / (alphaN_ - alpha0_);
-	auto d = (alphaN_ * this->l_) / (alphaN_ - alpha0_);
-	return c / (x - d);
-}
-
-double Solver_::p(double x_n) const {
-	return 2 * alpha(x_n) / R_;
-}
-
-double Solver_::f(double x_n) const {
-	return  2 * alpha(x_n) * T0_ / R_;
-}
-
-double Solver_::x_nph(double x_n) const {
-	auto k_curr = k(x_n);
-	auto k_next = k(x_n + h_);
-	return 2. * k_curr * k_next / (k_curr + k_next);
-}
-
-double Solver_::x_nmh(double x_n) const {
-	auto k_curr = k(x_n);
-	auto k_prev = k(x_n - h_);
-	return 2. * k_curr * k_prev / (k_curr + k_prev);
-}
-
-void Solver_::sweep_params(QVector<double> curr_T, QVector<double> prev_T) {
-	QVector<double> a(1);
-	QVector<double> b(1);
-	QVector<double> c(1);
-	QVector<double> d(1);
-
-	auto i = 1;
-	for (auto x = 0.; x <= l_; x += h_, i++) {
-		auto next_i = i + 1 == curr_T.size() ? i : i + 1;
-		auto x_min_half = (k(curr_T[i]) + k(curr_T[i - 1])) / 2;
-		auto x_plus_half = (k(curr_T[i]) + k(curr_T[next_i])) / 2;
-
-		a.push_back(x_min_half * tau_ / h_);
-		c.push_back(x_plus_half * tau_ / h_);
-		b.push_back(-a[a.size() - 1] - c[c.size() -1]
-				- this->c(curr_T[i]) * h_ - p(x) * h_ * tau_);
-		d.push_back(-f(x) * h_ * tau_ - this->c(curr_T[i]) * prev_T[i] * h_);
-	}
-
-	arrays_.an = a;
-	arrays_.bn = b;
-	arrays_.cn = c;
-	arrays_.dn = d;
-}
-
-void Solver_::left_border_cond(QVector<double> curr_T, QVector<double> prev_T) {
-	auto c_in_half = c((curr_T[0] + curr_T[1]) / 2);
-	auto c_0 = c(curr_T[0]);
-
-	auto hi_in_half = (k(curr_T[0]) + k(curr_T[1])) / 2;
-
-	auto p_0 = p(0.);
-	auto p_in_half = (p_0 + p(h_)) / 2;
-
-	auto f_0 = f(0.);
-	auto f_in_half = (f_0 + f(h_)) / 2;
-
-	auto k0 = h_ * c_in_half / 8 + h_ * c_0 / 4 + tau_ * hi_in_half / h_
-		  + tau_ * h_ * p_in_half / 8 + tau_ * h_ * p_0 / 4;
-	auto m0 = h_ * c_in_half / 8 - tau_ * hi_in_half / h_ + tau_ * h_ * p_in_half / 8;
-	auto p0 = h_ * c_in_half / 8 * (prev_T[0] + prev_T[1])
-			+ h_ * c_0 / 4 * prev_T[0] + F0_ * tau_ + tau_ * h_ / 4 * (f_in_half + f_0);
-
-	left_.k = k0;
-	left_.m = m0;
-	left_.p = p0;
-}
-
-void Solver_::right_border_cond(QVector<double> curr_T, QVector<double> prev_T) {
-	auto N = curr_T.size() - 1;
-
-	auto c_N_min_half = c((curr_T[N] + curr_T[N - 1]) / 2);
-	auto c_N = c(curr_T[N]);
-
-	auto hi_N_min_half = (k(curr_T[N]) + k(curr_T[N - 1])) / 2;
-
-	auto p_N = p(l_);
-	auto p_N_min_half = (p_N + p(l_ - h_)) / 2;
-
-	auto f_N = f(l_);
-	auto f_N_min_half = (f_N + f(l_ - h_)) / 2;
-
-	auto kN = h_ * c_N / 4 + h_ * c_N_min_half / 8 + hi_N_min_half * tau_ / h_
-		  + alphaN_ * tau_ + p_N * tau_ * h_ / 4 + p_N_min_half * tau_ * h_ / 8;
-	auto mN = h_ * c_N_min_half / 8 - hi_N_min_half * tau_ / h_
-		  + p_N_min_half * tau_ * h_ / 8;
-	auto pN = h_ * c_N * prev_T[N] / 4 + h_ * c_N_min_half * (prev_T[N] + prev_T[N - 1]) / 8
-			+ alphaN_ * T0_ * tau_ + (f_N + f_N_min_half) * tau_ * h_ / 4;
-
-	right_.k = kN;
-	right_.m = mN;
-	right_.p = pN;
-}
 
 class Solver {
 public:
