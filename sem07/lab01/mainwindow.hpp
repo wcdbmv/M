@@ -14,6 +14,10 @@ public:
 	MainWindow(QWidget *parent = nullptr);
 	~MainWindow();
 
+private slots:
+	void on_generateRandomNumbersWithComputationalMethodPushButton_clicked();
+	void on_generateRandomNumbersWithTableMethodPushButton_clicked();
+
 private:
 	Ui::MainWindow *ui;
 };

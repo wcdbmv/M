@@ -35,6 +35,9 @@ add_compile_options(
 set(
 	HEADERS
 	mainwindow.hpp
+	numbers_table_widget.hpp
+	random.hpp
+	random_number_table.hpp
 )
 
 set(
