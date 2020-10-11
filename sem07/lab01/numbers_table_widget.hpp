@@ -14,6 +14,7 @@ public:
 		setHorizontalHeaderLabels(QStringList() << "0..9" << "10..99" << "100..999");
 
 		horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+		setEditTriggers(QAbstractItemView::NoEditTriggers);
 	}
 
 	void clearRows()

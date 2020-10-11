@@ -5,8 +5,8 @@
 #include "random_number_table.hpp"
 
 MainWindow::MainWindow(QWidget *parent)
-        : QMainWindow(parent)
-        , ui(new Ui::MainWindow)
+	: QMainWindow(parent)
+	, ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
 }
@@ -28,6 +28,10 @@ void MainWindow::on_generateRandomNumbersWithComputationalMethodPushButton_click
 	const auto hundreds = generate_sequence<QVector<int>>(count, []() { return randint(100, 999); });
 
 	ui->computationalMethodRandomNumbersTableWidget->fill(ones, tens, hundreds);
+
+	ui->computationalMethodOnesTestLineEdit->setText(QString::number(serial_test(ones, 0, 9)));
+	ui->computationalMethodTensTestLineEdit->setText(QString::number(serial_test(tens, 10, 99)));
+	ui->computationalMethodHundredsTestLineEdit->setText(QString::number(serial_test(hundreds, 100, 999)));
 }
 
 void MainWindow::on_generateRandomNumbersWithTableMethodPushButton_clicked()
@@ -44,4 +48,8 @@ void MainWindow::on_generateRandomNumbersWithTableMethodPushButton_clicked()
 	const auto hundreds = generate_sequence<QVector<int>>(count, []() { return limit(randomNumberTable(), 100, 999); });
 
 	ui->tableMethodRandomNumbersTableWidget->fill(ones, tens, hundreds);
+
+	ui->tableMethodOnesTestLineEdit->setText(QString::number(serial_test(ones, 0, 9)));
+	ui->tableMethodTensTestLineEdit->setText(QString::number(serial_test(tens, 10, 99)));
+	ui->tableMethodHundredsTestLineEdit->setText(QString::number(serial_test(hundreds, 100, 999)));
 }
