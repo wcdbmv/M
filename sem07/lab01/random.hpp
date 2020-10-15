@@ -32,23 +32,25 @@ double serial_test(const Container<T>& values, T min, T max) {
 		return 0;
 	}
 
-	const auto chi_squared_test = [](const std::unordered_map<size_t, size_t>& frequency, double p, size_t n) -> double {
+	const auto chi_squared_test = [](const std::unordered_map<size_t, size_t>& frequency, double p, int n) -> double {
 		double chi_squared = 0;
 		for (const auto& [index, y] : frequency) {
-			chi_squared += (y - n * p) * (y - n * p) / (n * p);
+			chi_squared += y * y;
 		}
+		chi_squared = chi_squared / (n * p) - n;
 		return chi_squared;
 	};
 
 	const auto d = max - min + 1;
 	const auto d2 = d * d;
+	const auto n = values.size() / 2;
 
 	std::unordered_map<size_t, size_t> frequency;
-	for (decltype(values.size()) i = 0; 2 * i < values.size(); ++i) {
+	for (decltype(values.size()) i = 0; i < n; ++i) {
 		const size_t index = static_cast<size_t>((values[2 * i] - min) * d + values[2 * i + 1] - min);
 		++frequency[index];
 	}
 
 	const auto p = 1.0 / d2;
-	return chi_squared_test(frequency, p, static_cast<size_t>(values.size()));
+	return chi_squared_test(frequency, p, n);
 }
