@@ -11,3 +11,5 @@ build-*
 *.out
 *.synctex.gz
 *.toc
+
+.DS_Store
