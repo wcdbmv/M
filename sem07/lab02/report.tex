@@ -1,0 +1,166 @@
+\documentclass[a4paper,oneside,12pt]{extreport}
+
+\include{preamble}
+
+\begin{document}
+
+\include{title}
+
+\tableofcontents
+
+\chapter{Теоретическая часть}
+
+\section{Равномерное распределение}
+
+Случайная величина имеет равномерное распределение на отрезке $[a, b]$, где $a, b \in \mathbb R$, если её плотность имеет вид:
+\begin{equation}
+	f_X(x) =
+	\left\{
+	\begin{aligned}
+		& \frac{1}{b - a}, & x \in [a, b], \\
+		& 0,               & x \notin [a, b]. \\
+	\end{aligned}
+	\right.
+\end{equation}
+
+Функция равномерного распределения:
+\begin{equation}
+	F_X(x) =
+	\left\{
+	\begin{aligned}
+		& 0,                   & x < a, \\
+		& \frac{x - a}{b - a}, & a \leqslant x < b, \\
+		& 1,                   & x \geqslant b. \\
+	\end{aligned}
+	\right.
+\end{equation}
+
+Обозначают: $X \sim R(a, b)$.
+
+\section{Нормальное распределение}
+
+Случайная величина имеет нормальное распределение, если её плотность имеет вид:
+\begin{equation}
+	f_X(x) = \frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{(x - \mu)^2}{2\sigma^2}},
+\end{equation}
+где
+\begin{itemize}
+	\item параметр $\mu \in \mathbb R$ — математическое ожидание, определяет центр симметрии распределения,
+	\item параметр $\sigma \in \mathbb R_{> 0}$ — среднеквадратичное отклонение, определяет степень разброса случайной величины относительно математического ожидания.
+\end{itemize}
+
+Функция нормального распределения:
+\begin{equation}
+	F_X(x) = \frac{1}{\sigma\sqrt{2\pi}}\int\limits_{-\infty}^{x} e^{-\frac{(x - \mu)^2}{2\sigma^2}} \,\mathrm dx,
+\end{equation}
+
+Обозначают: $X \sim N(\mu, \sigma^2)$.
+
+\chapter{Результат работы}
+
+\section{Равномерное распределение}
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+			samples = 200,
+			const plot mark mid,
+			domain = -1.5:3.5,
+			ymin = 0,
+		]
+			\addplot [very thick, orange] {unipdf(0, 1)};
+			\addlegendentry{$a = 0; b = 1$};
+
+			\addplot [very thick, cyan] {unipdf(0.5, 2.5)};
+			\addlegendentry{$a = 0,5; b = 2,5$};
+
+			\addplot [very thick, teal] {unipdf(-1, 3)};
+			\addlegendentry{$a = -1; b = 3$};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Графики плотности равномерного распределения при различных $a$ и $b$}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+			samples = 200,
+			mark = none,
+			domain = -1.5:3.5,
+			ymin = 0,
+		]
+			\addplot [very thick, orange] {unicdf(0, 1)};
+			\addlegendentry{$a = 0; b = 1$};
+
+			\addplot [very thick, cyan] {unicdf(0.5, 2.5)};
+			\addlegendentry{$a = 0,5; b = 2,5$};
+
+			\addplot [very thick, teal] {unicdf(-1, 3)};
+			\addlegendentry{$a = -1; b = 3$};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Графики функции равномерного распределения при различных $a$ и $b$}
+\end{figure}
+
+\section{Нормальное распределение}
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+			samples = 200,
+			mark=none,
+			smooth,
+			domain = -5:5,
+			ymin = 0,
+		]
+			\addplot [very thick, orange] {normpdf(0, 1)};
+			\addlegendentry{$\mu = 0; \sigma^2 = 1$};
+
+			\addplot [very thick, cyan] {normpdf(0, sqrt(5))};
+			\addlegendentry{$\mu = 0; \sigma^2 = 5$};
+
+			\addplot [very thick, teal] {normpdf(0, sqrt(0.2))};
+			\addlegendentry{$\mu = 0; \sigma^2 = 0,2$};
+
+			\addplot [very thick, violet] {normpdf(2, 0.5)};
+			\addlegendentry{$\mu = 2; \sigma^2 = 0,5$};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Графики плотности нормального распределения при различных $\mu$ и $\sigma^2$}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+			samples = 200,
+			mark=none,
+			smooth,
+			domain = -5:5,
+			ymin = 0,
+		]
+			\addplot [very thick, orange] {normcdf(0, 1)};
+			\addlegendentry{$\mu = 0; \sigma^2 = 1$};
+
+			\addplot [very thick, cyan] {normcdf(0, sqrt(5))};
+			\addlegendentry{$\mu = 0; \sigma^2 = 5$};
+
+			\addplot [very thick, teal] {normcdf(0, sqrt(0.2))};
+			\addlegendentry{$\mu = 0; \sigma^2 = 0,2$};
+
+			\addplot [very thick, violet] {normcdf(2, sqrt(0.5))};
+			\addlegendentry{$\mu = 2; \sigma^2 = 0,5$};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Графики функции нормального распределения при различных $\mu$ и $\sigma^2$}
+\end{figure}
+
+\chapter*{Вывод}
+\addcontentsline{toc}{chapter}{Вывод}
+
+В ходе выполнения лабораторной работы были рассмотрены равномерное и нормальное распределения, а также построены графики функций и плотностей распределений при различных параметрах.
+
+\end{document}
