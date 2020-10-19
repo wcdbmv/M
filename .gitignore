@@ -2,6 +2,8 @@
 cmake-build-*
 build-*
 
+*.user
+
 *.aux
 *.log
 *.bbl
@@ -9,3 +11,5 @@ build-*
 *.out
 *.synctex.gz
 *.toc
+
+.DS_Store
