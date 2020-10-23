@@ -7,7 +7,7 @@
 template <template <typename> typename Container>
 bool is_square_matrix(const Container<Container<double>>& matrix) {
 	for (const auto& row : matrix) {
-		if (!row.size() == matrix.size()) {
+		if (!(row.size() == matrix.size() + 1)) {
 			return false;
 		}
 	}
@@ -16,7 +16,7 @@ bool is_square_matrix(const Container<Container<double>>& matrix) {
 
 template <template <typename> typename Container>
 decltype(auto) max_abs_element_in_column(Container<Container<double>>& matrix, typename Container<double>::size_type col) {
-	return std::max_element(matrix.begin(), matrix.end(), [col](const Container<double>& lhs, const Container<double>& rhs) {
+	return std::max_element(matrix.begin() + col, matrix.end(), [col](const Container<double>& lhs, const Container<double>& rhs) {
 		return fabs(lhs[col]) < fabs(rhs[col]);
 	});
 }
@@ -35,10 +35,10 @@ void make_zeros(Container<Container<double>>& matrix, typename Container<double>
 }
 
 template <template <typename> typename Container>
-Container<double> gauss(const Container<Container<double>>& A, const Container<double>&B) {
+Container<double> gauss(const Container<Container<double>>& A) {
 	const auto n = A.size();
 
-	if (!n || A[0].size() != n || B.size() != n) {
+	if (!n || !is_square_matrix(A)) {
 		throw std::invalid_argument("Inappropriate dimensions");
 	}
 
