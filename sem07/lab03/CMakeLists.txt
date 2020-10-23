@@ -34,7 +34,9 @@ add_compile_options(
 
 set(
 	HEADERS
+	gauss.hpp
 	mainwindow.hpp
+	markov.hpp
 )
 
 set(
