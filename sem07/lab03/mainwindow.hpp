@@ -17,8 +17,8 @@ public:
 
 private slots:
 	void on_calculatePushButton_clicked();
-
 	void on_intensityMatrixTableWidget_cellChanged(int row, int column);
+	void on_generateIntensityMatrixpushButton_clicked();
 
 private:
 	Ui::MainWindow *ui;

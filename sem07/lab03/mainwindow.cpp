@@ -3,8 +3,8 @@
 
 #include <array>
 #include <QMessageBox>
-#include <QThread>
 #include "markov.hpp"
+#include "random.hpp"
 
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
@@ -33,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 	resizeResultTableWidget(nStates);
 	ui->resultTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	ui->resultTableWidget->setHorizontalHeaderLabels(QStringList() << "p" << "t1" << "t2");
 }
 
 MainWindow::~MainWindow()
@@ -45,12 +46,20 @@ void MainWindow::on_calculatePushButton_clicked()
 {
 	const auto nStates = ui->nStatesSpinBox->value();
 
-	qDebug() << intensityMatrix;
-	const auto time_result = get_system_times(intensityMatrix);
+	QVector<double> p0_1(nStates);
+	p0_1[0] = 1;
+	QVector<double> p0_a(nStates, 1.0 / nStates);
 
-	ui->resultTableWidget->setRowCount(nStates);
+	qDebug() << intensityMatrix;
+	const auto result = solve(intensityMatrix);
+	const auto time_result_1 = get_system_times(intensityMatrix, result, p0_1);
+	const auto time_result_a = get_system_times(intensityMatrix, result, p0_a);
+
+	resizeResultTableWidget(nStates);
 	for (int i = 0; i < nStates; ++i) {
-		ui->resultTableWidget->setItem(i, 0, new QTableWidgetItem(QString::number(time_result[i])));
+		ui->resultTableWidget->item(i, 0)->setText(QString::number(result[i]));
+		ui->resultTableWidget->item(i, 1)->setText(QString::number(time_result_1[i]));
+		ui->resultTableWidget->item(i, 2)->setText(QString::number(time_result_a[i]));
 	}
 }
 
@@ -83,7 +92,7 @@ void MainWindow::resizeIntensityMatrixTableWidget(int size)
 
 void MainWindow::resizeResultTableWidget(int size)
 {
-	resizeTableWidget(ui->resultTableWidget, size, 1);
+	resizeTableWidget(ui->resultTableWidget, size, 3);
 }
 
 void MainWindow::on_intensityMatrixTableWidget_cellChanged(int row, int column)
@@ -100,4 +109,19 @@ void MainWindow::on_intensityMatrixTableWidget_cellChanged(int row, int column)
 		return;
 	}
 	cell = value;
+}
+
+void MainWindow::on_generateIntensityMatrixpushButton_clicked()
+{
+	const auto nStates = ui->nStatesSpinBox->value();
+	const auto maxIntensity = ui->maxIntensityDoubleSpinBox->value();
+	for (int i = 0; i < nStates; ++i) {
+		for (int j = 0; j < nStates; ++j) {
+			double value = 0.0;
+			if (i != j) {
+				value = randreal(0.0, maxIntensity);
+			}
+			ui->intensityMatrixTableWidget->item(i, j)->setText(QString::number(value));
+		}
+	}
 }

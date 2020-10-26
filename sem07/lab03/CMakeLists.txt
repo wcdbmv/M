@@ -37,6 +37,7 @@ set(
 	gauss.hpp
 	mainwindow.hpp
 	markov.hpp
+	random.hpp
 )
 
 set(
