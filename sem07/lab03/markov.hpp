@@ -55,11 +55,11 @@ template <template <typename> typename Container>
 Container<double> get_system_times(
 		const Container<Container<double>>& matrix,
 		const Container<double>& result,
-		const Container<double>& p0
+		const Container<double>& p0,
+		double dt,
+		double eps
 ) {
 	using size_type = typename Container<double>::size_type;
-	constexpr double dt = 0.001;
-	constexpr double eps = 0.01;
 
 	const auto n = matrix.size();
 

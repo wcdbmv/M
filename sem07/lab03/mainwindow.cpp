@@ -44,6 +44,13 @@ MainWindow::~MainWindow()
 #include <QtDebug>
 void MainWindow::on_calculatePushButton_clicked()
 {
+	const auto dt = ui->dtLineEdit->text().toDouble();
+	const auto eps = ui->epsLineEdit->text().toDouble();
+	if (dt <= 0.0 || eps <= 0.0) {
+		QMessageBox::critical(this, "Ошибка", "dt или eps заданы неправильно");
+		return;
+	}
+
 	const auto nStates = ui->nStatesSpinBox->value();
 
 	QVector<double> p0_1(nStates);
@@ -52,8 +59,8 @@ void MainWindow::on_calculatePushButton_clicked()
 
 	qDebug() << intensityMatrix;
 	const auto result = solve(intensityMatrix);
-	const auto time_result_1 = get_system_times(intensityMatrix, result, p0_1);
-	const auto time_result_a = get_system_times(intensityMatrix, result, p0_a);
+	const auto time_result_1 = get_system_times(intensityMatrix, result, p0_1, dt, eps);
+	const auto time_result_a = get_system_times(intensityMatrix, result, p0_a, dt, eps);
 
 	resizeResultTableWidget(nStates);
 	for (int i = 0; i < nStates; ++i) {
