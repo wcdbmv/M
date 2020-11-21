@@ -3,6 +3,8 @@
 
 #include <QMessageBox>
 
+#include "simulate.hpp"
+
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, ui(new Ui::MainWindow)
@@ -15,32 +17,45 @@ MainWindow::~MainWindow()
 	delete ui;
 }
 
-
 void MainWindow::on_simulatePushButton_clicked()
 {
-	const auto a = ui->aDoubleSpinBox->value();
-	const auto b = ui->bDoubleSpinBox->value();
-	if (b <= a) {
+	SimulateParams params;
+
+	params.a = ui->aDoubleSpinBox->value();
+	params.b = ui->bDoubleSpinBox->value();
+	if (params.b <= params.a) {
 		QMessageBox::critical(this, "Ошибка", "`a` должно быть меньше `b`");
 		return;
 	}
 
-	const auto mu = ui->muDoubleSpinBox->value();
-	const auto sigmaSquared = ui->sigmaSquaredDoubleSpinBox->value();
-	if (sigmaSquared < 0.0) {
+	params.mu = ui->muDoubleSpinBox->value();
+	params.sigma = ui->sigmaDoubleSpinBox->value();
+	if (params.sigma < 0.0) {
 		QMessageBox::critical(this, "Ошибка", "`\\sigma^2` должна быть больше `0`");
 		return;
 	}
 
-	const auto N = ui->nSpinBox->value();
-	const auto pReturn = ui->pReturnDoubleSpinBox->value();
-	const auto dt = ui->dtLineEdit->text().toDouble();
-	if (!(0 <= pReturn && pReturn <= 1)) {
+	params.n = ui->nSpinBox->value();
+	params.p_return = ui->pReturnDoubleSpinBox->value();
+	params.dt = ui->dtLineEdit->text().toDouble();
+	if (params.n < 0) {
+		QMessageBox::critical(this, "Ошибка", "`N` должно быть не меньше `0`");
+		return;
+	}
+	if (!(0 <= params.p_return && params.p_return <= 1)) {
 		QMessageBox::critical(this, "Ошибка", "`p_{возвр}` должно быть от `0` до `1`");
 		return;
 	}
-	if (dt <= 0.0) {
+	if (params.dt <= 0.0) {
 		QMessageBox::critical(this, "Ошибка", "`\\Delta t` должно быть больше `0`");
 		return;
 	}
+
+	auto resultsDt = simulateDt(params);
+	auto resultsEvent = simulateEvent(params);
+
+	ui->nReturnDtLineEdit->setText(QString::number(resultsDt.n_return));
+	ui->lDtLineEdit->setText(QString::number(resultsDt.max_queue_size));
+	ui->nReturnEventLineEdit->setText(QString::number(resultsEvent.n_return));
+	ui->lEventLineEdit->setText(QString::number(resultsEvent.max_queue_size));
 }

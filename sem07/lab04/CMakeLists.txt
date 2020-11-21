@@ -35,11 +35,14 @@ add_compile_options(
 set(
 	HEADERS
 	mainwindow.hpp
+	random.hpp
+	simulate.hpp
 )
 
 set(
 	SOURCES
 	mainwindow.cpp
+	simulate.cpp
 )
 
 set(
