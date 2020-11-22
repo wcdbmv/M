@@ -31,7 +31,7 @@ void MainWindow::on_simulatePushButton_clicked()
 	params.mu = ui->muDoubleSpinBox->value();
 	params.sigma = ui->sigmaDoubleSpinBox->value();
 	if (params.sigma < 0.0) {
-		QMessageBox::critical(this, "Ошибка", "`\\sigma^2` должна быть больше `0`");
+		QMessageBox::critical(this, "Ошибка", "`\\sigma` должна быть больше `0`");
 		return;
 	}
 
