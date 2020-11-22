@@ -55,7 +55,7 @@ void MainWindow::on_simulatePushButton_clicked()
 	auto resultsEvent = simulateEvent(params);
 
 	ui->nReturnDtLineEdit->setText(QString::number(resultsDt.n_return));
-	ui->lDtLineEdit->setText(QString::number(resultsDt.max_queue_size));
+	ui->lMaxDtLineEdit->setText(QString::number(resultsDt.max_queue_size));
 	ui->nReturnEventLineEdit->setText(QString::number(resultsEvent.n_return));
-	ui->lEventLineEdit->setText(QString::number(resultsEvent.max_queue_size));
+	ui->lMaxEventLineEdit->setText(QString::number(resultsEvent.max_queue_size));
 }
