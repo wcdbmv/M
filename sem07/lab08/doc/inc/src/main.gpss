@@ -1,0 +1,89 @@
+; Создание источника заявок
+;     Среднее время создания заявки = 4
+;     Временной полуинтервал = 2
+;     Время начальной задержки = 0
+;     Ограничитель = 1000 заявок
+                   GENERATE  4,2,,1000
+
+; Терминал
+;     Если очередь к терминалу больше 5 - отказ, иначе
+;     Встать в очередь
+;     По выходу из очереди занять терминал
+;     Задержать терминал на 3 ± 1
+;     Освободить терминал
+;     Равновероятно перейти к одну из окон 1 2 3
+LBL_TERM           TEST LE   Q$QUEUE_TERMINAL,5,EXIT_FAILURE_TERM
+                   QUEUE     QUEUE_TERMINAL
+                   SEIZE     TERMINAL
+                   DEPART    QUEUE_TERMINAL
+                   ADVANCE   3,1
+                   RELEASE   TERMINAL
+                   TRANSFER  PICK,LBL_JUMP_START,LBL_JUMP_STOP
+LBL_JUMP_START     TRANSFER  ,LBL_WIND1
+                   TRANSFER  ,LBL_WIND2
+LBL_JUMP_STOP      TRANSFER  ,LBL_WIND3
+
+; Окно 1
+;     Если очередь к окну 1 больше 5 - отказ, иначе
+;     Встать в очередь
+;     По выходу из очереди занять окно 1
+;     Задержать окно 1 на 15 ± 5
+;     Освободить окно 1
+;     С вероятностью 33 % перейти обратно в очередь к терминалу
+;     Иначе заявка обработана
+LBL_WIND1          TEST LE   Q$QUEUE_WINDOW1,5,EXIT_FAILURE_WIND1
+                   QUEUE     QUEUE_WINDOW1
+                   SEIZE     WINDOW1
+                   DEPART    QUEUE_WINDOW1
+                   ADVANCE   15,5
+                   RELEASE   WINDOW1
+                   TRANSFER  0.33,LBL_TERM
+                   TRANSFER  ,EXIT_SUCCESS
+
+; Окно 2
+;     Если очередь к окну 2 больше 5 - отказ, иначе
+;     Встать в очередь
+;     По выходу из очереди занять окно 2
+;     Задержать окно 2 на 10 ± 2
+;     Освободить окно 2
+;     Заявка обработана
+LBL_WIND2          TEST LE   Q$QUEUE_WINDOW2,5,EXIT_FAILURE_WIND2
+                   QUEUE     QUEUE_WINDOW2
+                   SEIZE     WINDOW2
+                   DEPART    QUEUE_WINDOW2
+                   ADVANCE   10,2
+                   RELEASE   WINDOW2
+                   TRANSFER  ,EXIT_SUCCESS
+
+; Окно 3
+;     Если очередь к окну 3 больше 5 - отказ, иначе
+;     Встать в очередь
+;     По выходу из очереди занять окно 3
+;     Задержать окно 3 на 30 ± 10
+;     Освободить окно 3
+;     Заявка обработана
+LBL_WIND3          TEST LE   Q$QUEUE_WINDOW3,5,EXIT_FAILURE_WIND3
+                   QUEUE     QUEUE_WINDOW3
+                   SEIZE     WINDOW3
+                   DEPART    QUEUE_WINDOW3
+                   ADVANCE   30,10
+                   RELEASE   WINDOW3
+                   TRANSFER  ,EXIT_SUCCESS
+
+EXIT_FAILURE_TERM  TRANSFER  ,EXIT_FAILURE
+EXIT_FAILURE_WIND1 TRANSFER  ,EXIT_FAILURE
+EXIT_FAILURE_WIND2 TRANSFER  ,EXIT_FAILURE
+EXIT_FAILURE_WIND3 TRANSFER  ,EXIT_FAILURE
+EXIT_FAILURE       TRANSFER  ,PROCESS_RESPONSE
+EXIT_SUCCESS       TRANSFER  ,PROCESS_RESPONSE
+
+; Подсчёт итогов
+PROCESS_RESPONSE   SAVEVALUE NFAILUREWIND1,N$EXIT_FAILURE_WIND1
+                   SAVEVALUE NFAILUREWIND2,N$EXIT_FAILURE_WIND2
+                   SAVEVALUE NFAILUREWIND3,N$EXIT_FAILURE_WIND3
+                   SAVEVALUE NFAILURE,N$EXIT_FAILURE
+                   SAVEVALUE NSUCCESS,N$EXIT_SUCCESS
+                   SAVEVALUE PFAILURE,((N$EXIT_FAILURE)/(N$PROCESS_RESPONSE))
+                   TERMINATE 1
+
+                   START     1000
