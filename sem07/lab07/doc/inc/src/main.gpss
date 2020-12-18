@@ -1,0 +1,79 @@
+; Создание источника заявок
+;     Среднее время создания заявки = 10
+;     Временной полуинтервал = 2
+;     Время начальной задержки = 0
+;     Ограничитель = 300 заявок
+                 GENERATE 10,2,,300
+
+; Оператор 1
+;     Если оператор 1 занят, перейти к оператору 2, иначе
+;     Занять оператора 1
+;     Задержать на 20 ± 5
+;     Освободить оператора 1
+;     Перейти к очереди на компьютер 1
+LBL_OP1          GATE NU   OPERATOR1,LBL_OP2
+                 SEIZE     OPERATOR1
+                 ADVANCE   20,5
+                 RELEASE   OPERATOR1
+                 TRANSFER  ,LBL_COMP1
+
+; Описание оператора 2
+;     Если оператор 2 занят, перейти к оператору 3, иначе
+;     Занять оператора 2
+;     Задержать на 40 ± 10
+;     Освободить оператора 2
+;     Перейти к компьютеру 1
+LBL_OP2          GATE NU   OPERATOR2,LBL_OP3
+                 SEIZE     OPERATOR2
+                 ADVANCE   40,10
+                 RELEASE   OPERATOR2
+                 TRANSFER  ,LBL_COMP1
+
+; Описание оператора 3
+;     Если оператор 3 занят, отбросить заявку, иначе
+;     Занять оператора 3
+;     Задержать на 40 ± 20
+;     Освободить оператора 3
+;     Перейти к компьютеру 2
+LBL_OP3          GATE NU   OPERATOR3,EXIT_FAILURE
+                 SEIZE     OPERATOR3
+                 ADVANCE   40,20
+                 RELEASE   OPERATOR3
+                 TRANSFER  ,LBL_COMP2
+
+; Описание компьютера 1
+;     Встать в очередь к компьютеру 1
+;     Занять компьютер 1
+;     Задержать на 15
+;     Освободить компьютер 1
+;     Заявка обработана
+LBL_COMP1        QUEUE     QUEUE_COMPUTER1
+                 SEIZE     COMPUTER1
+                 DEPART    QUEUE_COMPUTER1
+                 ADVANCE   15
+                 RELEASE   COMPUTER1
+                 TRANSFER  ,EXIT_SUCCESS
+
+; Описание компьютера 2
+;     Встать в очередь к компьютеру 2
+;     Занять компьютер 2
+;     Задержать на 30
+;     Освободить компьютер 2
+;     Заявка обработана
+LBL_COMP2        QUEUE     QUEUE_COMPUTER2
+                 SEIZE     COMPUTER2
+                 DEPART    QUEUE_COMPUTER2
+                 ADVANCE   30
+                 RELEASE   COMPUTER2
+                 TRANSFER  ,EXIT_SUCCESS
+
+EXIT_SUCCESS     TRANSFER  ,PROCESS_RESPONSE
+EXIT_FAILURE     TRANSFER  ,PROCESS_RESPONSE
+
+; Подсчёт итогов
+PROCESS_RESPONSE SAVEVALUE NSUCCESS,N$EXIT_SUCCESS
+                 SAVEVALUE NFAILURE,N$EXIT_FAILURE
+                 SAVEVALUE PFAILURE,((N$EXIT_FAILURE)/(N$PROCESS_RESPONSE))
+                 TERMINATE 1
+
+                 START     300
