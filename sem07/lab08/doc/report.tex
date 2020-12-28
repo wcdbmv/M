@@ -1,0 +1,67 @@
+\documentclass[a4paper,oneside,12pt]{extreport}
+
+\include{preamble}
+
+\begin{document}
+
+\include{title}
+
+\tableofcontents
+
+\chapter{Формализация}
+
+\section{Задание}
+
+В Люберецкий МФЦ приходят клиенты через интервал времени $4 \pm 2$ минуты и становятся в очередь к терминалу по получению талонов.
+На получение талона в среднем у клиента уходит $3 \pm 1$ минуты.
+Далее равновероятно клиенты становятся в одну из трёх очередей за услугами типа 1, 2 или 3: оформление документов, получение документов, остальные услуги.
+На обслуживание клиентов в каждом окне соответственно уходит $15 \pm 5$, $10 \pm 2$, $30 \pm 10$ минут.
+С вероятностью $p_{\text{возвр}} = 0,33$ клиент после получения услуги типа 1 становится обратно в очередь для получения талона на следующую услугу.
+Максимальная длина $L$ любой очереди в условиях пандемии — 5 человек.
+Промоделировать процесс обработки 1000 клиентов.
+
+\section{Концептульная модель}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\linewidth]{inc/img/conceptual-model.pdf}
+	\caption{Концептуальная модель}
+	\label{conceptual-model-qt}
+\end{figure}
+
+В процессе взаимодействия клиентов с Люберецким МФЦ возможно:
+\begin{itemize}
+	\item Режим нормального обслуживания, т. е. клиент получил услугу.
+	\item Режим отказа в обслуживании клиента, когда очередь, в которую становится клиент, заполнена.
+\end{itemize}
+
+\chapter{Листинг}
+
+\lstinputlisting[language=GPSS]{inc/src/main.gpss}
+
+\chapter{Результат работы}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/result-values.jpg}
+	\caption{Сохраняемые величины}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/result-devices.jpg}
+	\caption{Устройства}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{inc/img/result-queues.jpg}
+	\caption{Очереди}
+\end{figure}
+
+\chapter*{Вывод}
+\addcontentsline{toc}{chapter}{Вывод}
+
+Разработана программа в системе GPSS, предназначенная для моделирования процесса обработки клиентов в Люберецком МФЦ, позволяющая определить количество потерянных заявок и вероятность отказа в обслуживании.
+
+\end{document}
